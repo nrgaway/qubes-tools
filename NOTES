@@ -6,6 +6,14 @@ core3 status
 - moved NOTES from 'qubes-builder' here
 - configured thunderbird better for displaying reply emails
 - moved 'depends.sh' from core-admin to here
+- added global ignore for all my debuggers, etc
+- added code to examples/nrgaway.conf in my personal qubes-builder (nrgaway branch)repo 
+  to add my keyring using my qubes-os signing key located in qubes-builder 
+  (nrgaway-qubes-signing-key.asc)
+  - make nrgaway-keyring
+  - Fingerprint=E0E3 2283 FDCA C1A5 1007  8F27 1BB9 B1FB 5A4C 6DAD
+- signed and tagged all repos I am currently working with and removed NOCHECK from builder.conf:
+  - qubes-builder, core-admin, qubes-tools
 
 - git installation from source notes:
   - git-key:
