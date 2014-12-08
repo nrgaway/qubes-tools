@@ -1,0 +1,53 @@
+core3 status
+============
+
+== December 8, 2014 ===========================================================
+- manually compiled git to newest version to allow aout-sign of commits
+- moved NOTES from 'qubes-builder' here
+- configured thunderbird better for displaying reply emails
+- moved 'depends.sh' from core-admin to here
+
+- git installation from source notes:
+  - git-key:
+    http://pgp.mit.edu:11371/pks/lookup?search=0x96AFE6CB&op=index&fingerprint=on
+    http://pgp.mit.edu:11371/pks/lookup?op=get&search=0x20D04E5A713660A7
+    Fingerprint=96E0 7AF2 5771 9559 80DA  D100 20D0 4E5A 7136 60A7
+
+  - git install steps:
+    git clone https://github.com/git/git.git
+    cd git
+    git fetch
+    git checkout v2.2.0
+    git verify-tag v2.2.0
+    #yum erase git  # No point in removing existing git if you want kdevelop* + perl-Git
+    make configure
+    ./configure --prefix=/usr
+    make all doc
+    sudo make install install-doc install-html; # as root
+    sudo yum install kdevelop kdevelop-libs perl-Git; # Were removed as depends to git
+
+  - Opps, kdevelop kdevelop-libs perl-Git require git as depend, so I guess re-install
+    old git package again, and re-run 'make install...' again to over-write git
+
+  - NOTE: Will need to 'make-install' again on any git repo update though
+
+
+== December 5-7, 2014 =========================================================
+- created a dedicated devlop environment for Qubes work
+- created dedicated Qubes OS signing key
+- created repo on github
+- created a WIP branch of qubes-builder (nrgaway) to pull proper branches / repos
+
+- created a script to install develop dependencies for python and track missing spec depends
+- able to get doc to compile and read though them
+
+- Should I create copy of all repos on github
+- How to sign (tag) -- manually or via Makefile?
+- How to add a git remote (your branch to my branch)
+
+- line length 80 or 132?  
+- pep8; pylint; travis-ci
+
+I have reviewed the docs and test, noticing only init and vm tests are currently implemented so far.  Most of the code still seems foreign to me at this point so I guess I should just dive in and start something to become more familiar on how it all works together.
+
+Do you just want me to start proof reading the code correcting spelling mistakes, remove unused imports, etc?
