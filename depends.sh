@@ -39,6 +39,7 @@ HR_CHAR='-'
 # Colors
 reset=$(    tput sgr0   || tput me      )
 red=$(      tput setaf 1|| tput AF 1    )
+green=$(    tput setaf 2|| tput AF 2    )
 blue=$(     tput setaf 4|| tput AF 4    )
 
 function Len() {
@@ -82,7 +83,7 @@ function HrTitle() {
     printf "${reset}"
 }
 
-function InstallDepends() {
+function Header() {
     local depends="${1}"
     local title="${2-"${blue}DEPENDS - SPEC FILE"}"
     local color="${3-"${blue}"}"
@@ -94,17 +95,51 @@ function InstallDepends() {
     echo ${depends} | fold -w $len -s
     Hr ${len} "${color}${char}"
     echo
-    sudo yum -y install ${depends}
+}
+
+function InstallYum() {
+    local depends="${1}"
+    local title="${2-"${blue}DEPENDS - SPEC FILE"}"
+    local color="${3-"${blue}"}"
+
+    Header "${depends}" "${title}" "${color}"
+     sudo yum -y install ${depends}
+}
+
+function InstallPip() {
+    local depends="${1}"
+    local title="${2-"${blue}DEPENDS - SPEC FILE"}"
+    local color="${3-"${blue}"}"
+
+    Header "${depends}" "${title}" "${color}"
+     sudo pip install --upgrade --force-reinstall ${depends} || {
+         if [ -f '/usr/bin/python3-pip' ]; then
+             sudo python3-pip install --upgrade --force-reinstall ${depends};
+         fi
+     }
 }
 
 pushd "${package_dir}" > /dev/null
     echo
     depends="$(rpmspec -q --requires ${SPEC} | uniq | grep "${FILTER}")"
-    InstallDepends "${depends}" 
+    InstallYum "${depends}"
 popd > /dev/null
 
-if [ -f "${dir}/${package}-depends.missing" ]; then
-    depends="$(cat "${dir}/${package}-depends.missing")"
-    InstallDepends "${depends}" "DEPENDS - MISSING FROM SPEC FILE" "${red}"
+# Manually added depends
+if [ -f "${dir}/depends-${package}.missing" ]; then
+    depends="$(sed 's/\#.*//g' < "${dir}/depends-${package}.missing")"
+    InstallYum "${depends}" "DEPENDS - MISSING FROM SPEC FILE" "${red}"
+fi
+
+# Personal rpm packages
+if [ -f "${dir}/depends-personal-rpm" ]; then
+    depends="$(sed 's/\#.*//g' < "${dir}/depends-personal-rpm")"
+    InstallYum "${depends}" "Personal rpm Packages" "${green}"
+fi
+
+# Personal pip packages
+if [ -f "${dir}/depends-personal-pip" ]; then
+    depends="$(sed 's/\#.*//g' < "${dir}/depends-personal-pip")"
+    InstallPip "${depends}" "Personal pip Packages" "${green}"
 fi
 
