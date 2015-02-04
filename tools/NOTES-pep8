@@ -1,0 +1,182 @@
+===============================================================================
+PEP8:
+    https://github.com/hhatto/autopep8
+    pip install --upgrade autopep8
+    pip install --upgrade pep8
+===============================================================================
+
+# Two stages seems the best way to prevent splitting to many lines
+# ----------------------------------------------------------------
+autopep8 --ignore E309,E128,E303 --max-line-length 79 __init__.py > __init__.pep8
+autopep8 --ignore E309,E128,E303 --max-line-length 79 -a __init__.pep8 > __init__.pep8e
+autopep8 --select E711,E7112 --max-line-length 79 __init__.pep8e > __init__.pep8s
+
+# Ignore
+--------
+E309 - Add missing blank line. (Removes blank line after class def; before comment
+E303 - Remove extra blank lines. (Allows 2 blank lines between function defs) -- need to hack to make 2 lines; not more or less
+E128 - Fix a badly indented line. (Allows under-indented line)
+
+-------------------------------------------------------------------------------
+ISSUES:
+-------------------------------------------------------------------------------
+
+- Some auto-corrected code (when line is too long) may still be over-indented.
+  It can be manually chaged and it will be left alone, or is it acceptable as
+  I am not sure how strict your rule is for under-indented lines for which
+  context.  If you want this only indented 4 spaces, I can work on it some more.
+  [Also @ ~line:385 in new file]
+
+  For example, __init__.py:382
+  OLD:
+    def __contains__(self, key):
+        return any((key == vm or key == vm.qid or key == vm.name) for vm in self)
+
+  NEW:
+    def __contains__(self, key):
+        return any((key == vm or key == vm.qid or key == vm.name)
+                   for vm in self)
+
+- will not detect if there are more than 2 spaces between function methods
+
+
+-------------------------------------------------------------------------------
+FIXED:
+-------------------------------------------------------------------------------
+- Now uses the most horizontial space and does not use excessive lines when
+  splitting a line
+
+# E112 - Fix under-indented comments.
+- __init__:489
+  - '#' comments being indented for some lines and not others; would like no indent
+  - Only happens if line preceeding comment ends in a ':'
+
+E128 - Fix visual indentation
+E128 - Fix a badly indented line [Now allows under-indented lines]
+
+E309 - Add missing blank line (after class declaration) [No longer adds it]
+
+E303 - Remove extra blank lines [Now allows 2 blank lines between function defs]
+       [TODO: Create definition to enforce this]
+
+
+
+===============================================================================
+DOCFORMATTER:
+    https://github.com/myint/docformatter
+    pip install --upgrade docformatter
+===============================================================================
+
+
+
+===============================================================================
+RESOURCES:
+===============================================================================
+
+autopep8 --list-fixes
+E101 - Reindent all lines.
+E112 - Fix under-indented comments.
+E113 - Fix over-indented comments.
+E115 - Fix under-indented comments.
+E116 - Fix over-indented comments.
+E121 - Fix a badly indented line.
+E122 - Fix a badly indented line.
+E123 - Fix a badly indented line.
+E124 - Fix a badly indented line.
+E125 - Fix indentation undistinguish from the next logical line.
+E126 - Fix a badly indented line.
+E127 - Fix a badly indented line.
+E128 - Fix a badly indented line.
+E129 - Fix a badly indented line.
+E201 - Remove extraneous whitespace.
+E202 - Remove extraneous whitespace.
+E203 - Remove extraneous whitespace.
+E211 - Remove extraneous whitespace.
+E221 - Fix extraneous whitespace around keywords.
+E222 - Fix extraneous whitespace around keywords.
+E223 - Fix extraneous whitespace around keywords.
+E224 - Remove extraneous whitespace around operator.
+E225 - Fix missing whitespace around operator.
+E226 - Fix missing whitespace around operator.
+E227 - Fix missing whitespace around operator.
+E228 - Fix missing whitespace around operator.
+E231 - Add missing whitespace.
+E231 - Fix various deprecated code (via lib2to3).
+E241 - Fix extraneous whitespace around keywords.
+E242 - Remove extraneous whitespace around operator.
+E251 - Remove whitespace around parameter '=' sign.
+E261 - Fix spacing after comment hash.
+E262 - Fix spacing after comment hash.
+E265 - Format block comments.
+E271 - Fix extraneous whitespace around keywords.
+E272 - Fix extraneous whitespace around keywords.
+E273 - Fix extraneous whitespace around keywords.
+E274 - Fix extraneous whitespace around keywords.
+E301 - Add missing blank line.
+E302 - Add missing 2 blank lines.
+E303 - Remove extra blank lines.
+E304 - Remove blank line following function decorator.
+E309 - Add missing blank line.
+E401 - Put imports on separate lines.
+E501 - Try to make lines fit within --max-line-length characters.
+E502 - Remove extraneous escape of newline.
+E701 - Put colon-separated compound statement on separate lines.
+E702 - Put semicolon-separated compound statement on separate lines.
+E703 - Put semicolon-separated compound statement on separate lines.
+E711 - Fix comparison with None.
+E712 - Fix comparison with boolean.
+E713 - Fix non-membership check.
+E721 - Fix various deprecated code (via lib2to3).
+W291 - Remove trailing whitespace.
+W293 - Remove trailing whitespace.
+W601 - Fix various deprecated code (via lib2to3).
+W602 - Fix deprecated form of raising exception.
+W603 - Fix various deprecated code (via lib2to3).
+W604 - Fix various deprecated code (via lib2to3).
+W690 - Fix various deprecated code (via lib2to3).
+...
+    E101 - Reindent all lines.
+    E121 - Fix indentation to be a multiple of four.
+    E122 - Add absent indentation for hanging indentation.
+    E123 - Align closing bracket to match opening bracket.
+    E124 - Align closing bracket to match visual indentation.
+    E125 - Indent to distinguish line from next logical line.
+    E126 - Fix over-indented hanging indentation.
+    E127 - Fix visual indentation.
+    E128 - Fix visual indentation.
+    E20  - Remove extraneous whitespace.
+    E211 - Remove extraneous whitespace.
+    E22  - Fix extraneous whitespace around keywords.
+    E224 - Remove extraneous whitespace around operator.
+    E226 - Fix missing whitespace around arithmetic operator.
+    E227 - Fix missing whitespace around bitwise/shift operator.
+    E228 - Fix missing whitespace around modulo operator.
+    E231 - Add missing whitespace.
+    E241 - Fix extraneous whitespace around keywords.
+    E242 - Remove extraneous whitespace around operator.
+    E251 - Remove whitespace around parameter '=' sign.
+    E26  - Fix spacing after comment hash for inline comments.
+    E265 - Fix spacing after comment hash for block comments.
+    E27  - Fix extraneous whitespace around keywords.
+    E301 - Add missing blank line.
+    E302 - Add missing 2 blank lines.
+    E303 - Remove extra blank lines.
+    E304 - Remove blank line following function decorator.
+    E309 - Add missing blank line (after class declaration).
+    E401 - Put imports on separate lines.
+    E501 - Try to make lines fit within --max-line-length characters.
+    E502 - Remove extraneous escape of newline.
+    E701 - Put colon-separated compound statement on separate lines.
+    E70  - Put semicolon-separated compound statement on separate lines.
+    E711 - Fix comparison with None.
+    E712 - Fix comparison with boolean.
+    E721 - Use "isinstance()" instead of comparing types directly.
+    W291 - Remove trailing whitespace.
+    W293 - Remove trailing whitespace on blank line.
+    W391 - Remove trailing blank lines.
+    W601 - Use "in" rather than "has_key()".
+    W602 - Fix deprecated form of raising exception.
+    W603 - Use "!=" instead of "<>"
+    W604 - Use "repr()" instead of backticks.
+    W690 - Fix various deprecated code (via lib2to3).
+

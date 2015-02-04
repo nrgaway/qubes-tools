@@ -1,0 +1,26 @@
+language: python
+
+python:
+    - "2.6"
+    - "2.7"
+    - "pypy"
+    - "3.2"
+    - "3.3"
+    - "3.4"
+
+before_install:
+    - if [ "$TRAVIS_PYTHON_VERSION" == "2.6" ]; then pip install --quiet argparse unittest2; fi
+
+install:
+    - python setup.py --quiet install
+
+script:
+    - python test_docformatter.py
+    - docformatter setup.py
+
+after_success:
+    - pip install --quiet coverage
+    - make coverage
+
+    - pip install --quiet coveralls
+    - coveralls

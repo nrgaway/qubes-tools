@@ -61,7 +61,7 @@ SETTINGS = {
     'field_name_limit': 50,
 }
 
-class GitHubHTMLTranslator(HTMLTranslatoa):
+class GitHubHTMLTranslator(HTMLTranslator):
     # removes the <div class="document"> tag wrapped around docs
     # see also: http://bit.ly/1exfq2h (warning! sourceforge link.)
     def depart_document(self, node):
@@ -123,6 +123,38 @@ class GitHubHTMLTranslator(HTMLTranslatoa):
         # add on `img` with attributes
         self.body.append(self.starttag(node, 'img', **atts))
       self.body.append(self.context.pop())
+
+    # --------------------------------------------------------------------------
+
+    def visit_definition(self, node):
+        self.body.append('</dt>\n')
+        self.body.append(self.starttag(node, 'dd', ''))
+        self.set_first_last(node)
+
+    def depart_definition(self, node):
+        self.body.append('</dd>\n')
+
+    def visit_definition_list(self, node):
+        self.body.append(self.starttag(node, 'dl', CLASS='docutils'))
+
+    def depart_definition_list(self, node):
+        self.body.append('</dl>\n')
+
+    def visit_definition_list_item(self, node):
+        pass
+
+    def depart_definition_list_item(self, node):
+        pass
+
+    def visit_term(self, node):
+        self.body.append(self.starttag(node, 'dt', ''))
+
+    def depart_term(self, node):
+        """
+        Leave the end tag to `self.visit_definition()`, in case there's a
+        classifier.
+        """
+        pass
 
 def main():
     """

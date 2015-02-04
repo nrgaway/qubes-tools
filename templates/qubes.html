@@ -1,0 +1,990 @@
+
+<!-- vim: set ts=2 sw=2 :-->
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>qubes – Common concepts &mdash; core-admin jm_e1c53f8f-0-ge1c53f8-dirty documentation</title>
+    
+    <link rel="stylesheet" href="static/sphinx/basic.css" type="text/css" />
+    <link rel="stylesheet" href="static/sphinx/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="static/semantic-1.2.0/semantic.min.css" type="text/css" />
+    <link rel="stylesheet" href="static/qubes.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     'jm_e1c53f8f-0-ge1c53f8-dirty',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <link rel="top" title="core-admin jm_e1c53f8f-0-ge1c53f8-dirty documentation" href="index.html" />
+    <link rel="next" title="qubes.vm – Different Virtual Machine types" href="qubes-vm/index.html" />
+    <link rel="prev" title="qubes-prefs – Display system-wide Qubes settings" href="qubes-tools/qubes-prefs.html" />
+    <meta charset='utf-8'>
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <meta content="html5, ui, library, framework, javascript" name="keywords">
+    
+    <script src="static/sphinx/js/jquery-1.11.1.min.js"></script>
+    <script src="static/semantic-1.2.0/semantic.min.js"></script>
+    <script src="static/bootstrap-sphinx.js"></script>
+    <script src="static/qubes.js"></script>
+    <script src="static/sphinx/underscore.js"></script>
+    <script src="static/sphinx/doctools.js"></script>
+
+  </head>
+  <body>
+
+
+<!-- vim: set ts=2 sw=2 :-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="menu_sidebar" class="ui floating sidebar vertical menu">
+	
+	
+	
+	<a class="item" href="index.html">
+		<div class="image left"><img src="_static/qubes-logo.png">
+</div>
+		core-admin
+	
+	
+	<div><b>2.1.64</b></div>
+	</a>
+
+	
+	
+	
+	
+
+	
+	
+	
+	
+	
+	
+	
+		<div class="ui dropdown item">
+  <i class="dropdown icon" tabindex="0"></i>
+  <!--a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>-->
+  Site
+  <!--div class="menu transition visible" tabindex="-1" style=""-->
+  <div class="menu" tabindex="-1" style="">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="qvm-tools/index.html">VM manipulation tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-add-appvm.html"><strong class="program">qvm-add-appvm</strong> &#8211; Add an already installed appvm to the Qubes DB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-add-template.html"><strong class="program">qvm-add-template</strong> &#8211; Adds an already installed template to the Qubes DB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-backup.html"><strong class="program">qvm-backup</strong> &#8211; Create backup of specified VMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-backup-restore.html"><strong class="program">qvm-backup-restore</strong> &#8211; Restores Qubes VMs from backup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-block.html"><strong class="program">qvm-block</strong> &#8211; List/set VM PCI devices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-clone.html"><strong class="program">qvm-clone</strong> &#8211; Clones an existing VM by copying all its disk files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-clone-template.html"><strong class="program">qvm-clone-template</strong> &#8211; Clones an existing template by copying all its disk files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-create.html"><strong class="program">qvm-create</strong> &#8211; Creates a new VM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-create-default-dvm.html"><strong class="program">qvm-create-default-dvm</strong> &#8211; Creates a default Disposable VM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-firewall.html"><strong class="program">qvm-firewall</strong> &#8211; Qubes firewall configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-grow-private.html"><strong class="program">qvm-grow-private</strong> &#8211; Increase private storage capacity of a specified VM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-kill.html"><strong class="program">qvm-kill</strong> &#8211; Kill the specified VM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-ls.html"><strong class="program">qvm-ls</strong> &#8211; List VMs and various information about them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-pci.html"><strong class="program">qvm-pci</strong> &#8211; List/set VM PCI devices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-prefs.html"><strong class="program">qvm-prefs</strong> &#8211; List/set various per-VM properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-remove.html"><strong class="program">qvm-remove</strong> &#8211; Remove a VM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-revert-template-changes.html"><strong class="program">qvm-revert-template-changes</strong> &#8211; Revert changes to a template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-run.html"><strong class="program">qvm-run</strong> &#8211; Run a command on a specified VM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-service.html"><strong class="program">qvm-service</strong> &#8211; Manage (Qubes-specific) services started in VM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-shutdown.html"><strong class="program">qvm-shutdown</strong> &#8211; Gracefully shut down a VM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-start.html"><strong class="program">qvm-start</strong> &#8211; Start a specified VM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-template-commit.html"><strong class="program">qvm-template-commit</strong> &#8211; Commit changes to a template</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="qubes-tools/index.html">System-wide tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qubes-tools/qubes-guid.html"><strong class="program">qubes-guid</strong> &#8211; Daemon for Qubes GUI isolation protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qubes-tools/qubes-prefs.html"><strong class="program">qubes-prefs</strong> &#8211; Display system-wide Qubes settings</a></li>
+</ul>
+</li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href=""><tt class="docutils literal"><span class="pre">qubes</span></tt> &#8211; Common concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qubes-vm/index.html"><tt class="docutils literal"><span class="pre">qubes.vm</span></tt> &#8211; Different Virtual Machine types</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qubes-vm/index.html#main-public-classes">Main public classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qubes-vm/index.html#helper-classes-and-functions">Helper classes and functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qubes-vm/index.html#particular-vm-classes">Particular VM classes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="qubes-events.html"><tt class="docutils literal"><span class="pre">qubes.events</span></tt> &#8211; Qubes events</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qubes-plugins.html"><tt class="docutils literal"><span class="pre">qubes.plugins</span></tt> &#8211; Plugin helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qubes-ext.html"><tt class="docutils literal"><span class="pre">qubes.ext</span></tt> &#8211; Qubes extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qubes-log.html"><tt class="docutils literal"><span class="pre">qubes.log</span></tt> &#8211; Logging routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qubes-dochelpers.html"><tt class="docutils literal"><span class="pre">qubes.dochelpers</span></tt> &#8211; Helpers for Sphinx documentation</a></li>
+</ul>
+
+  </div>
+</div>
+		
+			<div class="ui dropdown item">
+  <i class="dropdown icon" tabindex="0"></i>
+  <!--a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a-->
+     Page
+  <!--div class="menu transition visible" tabindex="-1" style=""-->
+  <div class="menu" tabindex="-1" style="">
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">qubes</span></tt> &#8211; Common concepts</a></li>
+</ul>
+
+  </div>
+</div>
+		
+	
+
+
+	
+	
+	
+	<a class="item text">
+		
+	
+	
+
+	</a>
+
+	
+	
+	
+	
+
+	
+	
+	
+	
+	
+		
+<div class="right menu">
+  <div class="item">
+    <div class="ui transparent icon input">
+      <form class="ui form" action="search.html" method="get">
+        <input type="text" name="q" placeholder="Search...">
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+      <i class="search link icon"></i>
+    </div>
+  </div>
+</div>
+	
+
+
+	<div class="ui sub menu">
+		
+		
+		
+		
+			
+	
+		
+    <a class="item" href="qubes-tools/qubes-prefs.html" title="Previous Chapter: qubes-prefs – Display system-wide Qubes settings">
+      <!--i class="left icon"></i> qubes-prefs – Di...-->
+      <i class="left arrow icon"></i> qubes-prefs – Display system-wide Qubes settings
+    </a>
+    <a class="right item" href="qubes-vm/index.html" title="Next Chapter: qubes.vm – Different Virtual Machine types">
+      <!--i class="left icon"></i> qubes.vm – Diffe... -->
+      qubes.vm – Different Virtual Machine types <i class="right arrow icon"></i>
+    </a>
+	
+
+		
+	</div>
+</div>
+
+
+
+<div id="page" class="iu pusher">
+	
+<!-- vim: set ts=2 sw=2 :-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="mainHead">
+	
+	
+	
+  <div id="menu" class="ui borderless tiered menu">
+		
+		
+		
+		<a class="item" href="index.html">
+			<img src="_static/qubes-logo.png">
+
+			core-admin</a>
+
+		
+		
+		
+		<span class="item text"><b>2.1.64</b></span>
+
+		
+		
+		
+		
+
+		
+		
+		
+		
+		
+		
+	
+		<div class="ui dropdown item">
+  <i class="dropdown icon" tabindex="0"></i>
+  <!--a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>-->
+  Site
+  <!--div class="menu transition visible" tabindex="-1" style=""-->
+  <div class="menu" tabindex="-1" style="">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="qvm-tools/index.html">VM manipulation tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-add-appvm.html"><strong class="program">qvm-add-appvm</strong> &#8211; Add an already installed appvm to the Qubes DB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-add-template.html"><strong class="program">qvm-add-template</strong> &#8211; Adds an already installed template to the Qubes DB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-backup.html"><strong class="program">qvm-backup</strong> &#8211; Create backup of specified VMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-backup-restore.html"><strong class="program">qvm-backup-restore</strong> &#8211; Restores Qubes VMs from backup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-block.html"><strong class="program">qvm-block</strong> &#8211; List/set VM PCI devices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-clone.html"><strong class="program">qvm-clone</strong> &#8211; Clones an existing VM by copying all its disk files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-clone-template.html"><strong class="program">qvm-clone-template</strong> &#8211; Clones an existing template by copying all its disk files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-create.html"><strong class="program">qvm-create</strong> &#8211; Creates a new VM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-create-default-dvm.html"><strong class="program">qvm-create-default-dvm</strong> &#8211; Creates a default Disposable VM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-firewall.html"><strong class="program">qvm-firewall</strong> &#8211; Qubes firewall configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-grow-private.html"><strong class="program">qvm-grow-private</strong> &#8211; Increase private storage capacity of a specified VM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-kill.html"><strong class="program">qvm-kill</strong> &#8211; Kill the specified VM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-ls.html"><strong class="program">qvm-ls</strong> &#8211; List VMs and various information about them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-pci.html"><strong class="program">qvm-pci</strong> &#8211; List/set VM PCI devices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-prefs.html"><strong class="program">qvm-prefs</strong> &#8211; List/set various per-VM properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-remove.html"><strong class="program">qvm-remove</strong> &#8211; Remove a VM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-revert-template-changes.html"><strong class="program">qvm-revert-template-changes</strong> &#8211; Revert changes to a template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-run.html"><strong class="program">qvm-run</strong> &#8211; Run a command on a specified VM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-service.html"><strong class="program">qvm-service</strong> &#8211; Manage (Qubes-specific) services started in VM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-shutdown.html"><strong class="program">qvm-shutdown</strong> &#8211; Gracefully shut down a VM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-start.html"><strong class="program">qvm-start</strong> &#8211; Start a specified VM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qvm-tools/qvm-template-commit.html"><strong class="program">qvm-template-commit</strong> &#8211; Commit changes to a template</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="qubes-tools/index.html">System-wide tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qubes-tools/qubes-guid.html"><strong class="program">qubes-guid</strong> &#8211; Daemon for Qubes GUI isolation protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qubes-tools/qubes-prefs.html"><strong class="program">qubes-prefs</strong> &#8211; Display system-wide Qubes settings</a></li>
+</ul>
+</li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href=""><tt class="docutils literal"><span class="pre">qubes</span></tt> &#8211; Common concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qubes-vm/index.html"><tt class="docutils literal"><span class="pre">qubes.vm</span></tt> &#8211; Different Virtual Machine types</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qubes-vm/index.html#main-public-classes">Main public classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qubes-vm/index.html#helper-classes-and-functions">Helper classes and functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qubes-vm/index.html#particular-vm-classes">Particular VM classes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="qubes-events.html"><tt class="docutils literal"><span class="pre">qubes.events</span></tt> &#8211; Qubes events</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qubes-plugins.html"><tt class="docutils literal"><span class="pre">qubes.plugins</span></tt> &#8211; Plugin helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qubes-ext.html"><tt class="docutils literal"><span class="pre">qubes.ext</span></tt> &#8211; Qubes extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qubes-log.html"><tt class="docutils literal"><span class="pre">qubes.log</span></tt> &#8211; Logging routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qubes-dochelpers.html"><tt class="docutils literal"><span class="pre">qubes.dochelpers</span></tt> &#8211; Helpers for Sphinx documentation</a></li>
+</ul>
+
+  </div>
+</div>
+		
+			<div class="ui dropdown item">
+  <i class="dropdown icon" tabindex="0"></i>
+  <!--a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a-->
+     Page
+  <!--div class="menu transition visible" tabindex="-1" style=""-->
+  <div class="menu" tabindex="-1" style="">
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">qubes</span></tt> &#8211; Common concepts</a></li>
+</ul>
+
+  </div>
+</div>
+		
+	
+
+
+		
+		
+		
+		<a class="item text">
+			
+	
+	
+
+		</a>
+
+		
+		
+		
+		
+
+		
+		
+		
+		
+	
+		
+<div class="right menu">
+  <div class="item">
+    <div class="ui transparent icon input">
+      <form class="ui form" action="search.html" method="get">
+        <input type="text" name="q" placeholder="Search...">
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+      <i class="search link icon"></i>
+    </div>
+  </div>
+</div>
+	
+
+
+		<div class="ui sub menu">
+			
+			
+			
+			
+				
+	
+		
+    <a class="item" href="qubes-tools/qubes-prefs.html" title="Previous Chapter: qubes-prefs – Display system-wide Qubes settings">
+      <!--i class="left icon"></i> qubes-prefs – Di...-->
+      <i class="left arrow icon"></i> qubes-prefs – Display system-wide Qubes settings
+    </a>
+    <a class="right item" href="qubes-vm/index.html" title="Next Chapter: qubes.vm – Different Virtual Machine types">
+      <!--i class="left icon"></i> qubes.vm – Diffe... -->
+      qubes.vm – Different Virtual Machine types <i class="right arrow icon"></i>
+    </a>
+	
+
+			
+		</div>
+  </div>
+
+	
+	
+	
+	<div id="menu_mobile" class="ui black labeled icon button">
+		<i class="icon list layout"></i>
+		Menu
+	</div>
+</div>
+
+
+	
+	<div id="content" class="ui grid">
+		<div class="equal height row">
+			<div class="twelve wide computer sixteen wide tablet sixteen wide mobile column">
+				<div class="ui horizontal segment">
+					
+  <div class="section" id="module-qubes">
+<span id="qubes-common-concepts"></span><h1><a class="reference internal" href="#module-qubes" title="qubes"><tt class="xref py py-mod docutils literal"><span class="pre">qubes</span></tt></a> &#8211; Common concepts<a class="headerlink" href="#module-qubes" title="Permalink to this headline">¶</a></h1>
+<dl class="exception">
+<dt class="desc_signature" id="qubes.QubesException"><em class="property">exception </em><tt class="descclassname">qubes.</tt><tt class="descname">QubesException</tt><a class="reference internal" href="_modules/qubes.html#QubesException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.QubesException" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>Exception that can be shown to the user</p>
+</dd></dl>
+
+<dl class="class">
+<dt class="desc_signature" id="qubes.Label"><em class="property">class </em><tt class="descclassname">qubes.</tt><tt class="descname">Label</tt><big>(</big><em>index</em>, <em>color</em>, <em>name</em><big>)</big><a class="reference internal" href="_modules/qubes.html#Label"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.Label" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Bases: <a class="reference external" href="http://docs.python.org/3/library/functions.html#object" title="(in Python v3.4)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<p>Label definition for virtual machines</p>
+<p>Label specifies colour of the padlock displayed next to VM&#8217;s name.
+When this is a <a class="reference internal" href="qubes-vm/dispvm.html#qubes.vm.dispvm.DispVM" title="qubes.vm.dispvm.DispVM"><tt class="xref py py-class docutils literal"><span class="pre">qubes.vm.dispvm.DispVM</span></tt></a>, padlock is overlayed
+with recycling pictogram.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>index</strong> (<a class="reference external" href="http://docs.python.org/3/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; numeric identificator of label</li>
+<li><strong>color</strong> (<a class="reference external" href="http://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; colour specification as in HTML (<tt class="docutils literal"><span class="pre">#abcdef</span></tt>)</li>
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; label&#8217;s name like &#8220;red&#8221; or &#8220;green&#8221;</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="classmethod">
+<dt class="desc_signature" id="qubes.Label.fromxml"><em class="property">classmethod </em><tt class="descname">fromxml</tt><big>(</big><em>xml</em><big>)</big><a class="reference internal" href="_modules/qubes.html#Label.fromxml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.Label.fromxml" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Create label definition from XML node</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>xml</strong> (<em>lxml.etree._Element</em>) &#8211; XML node reference</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#qubes.Label" title="qubes.Label"><tt class="xref py py-class docutils literal"><span class="pre">qubes.Label</span></tt></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt class="desc_signature" id="qubes.Label.color"><tt class="descname">color</tt><em class="property"> = None</em><a class="headerlink" href="#qubes.Label.color" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>colour specification as in HTML (<tt class="docutils literal"><span class="pre">#abcdef</span></tt>)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt class="desc_signature" id="qubes.Label.icon"><tt class="descname">icon</tt><em class="property"> = None</em><a class="headerlink" href="#qubes.Label.icon" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>freedesktop icon name, suitable for use in <tt class="xref py py-meth docutils literal"><span class="pre">PyQt4.QtGui.QIcon.fromTheme()</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt class="desc_signature" id="qubes.Label.icon_dispvm"><tt class="descname">icon_dispvm</tt><em class="property"> = None</em><a class="headerlink" href="#qubes.Label.icon_dispvm" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>freedesktop icon name, suitable for use in <tt class="xref py py-meth docutils literal"><span class="pre">PyQt4.QtGui.QIcon.fromTheme()</span></tt>
+on DispVMs</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt class="desc_signature" id="qubes.Label.icon_path"><tt class="descname">icon_path</tt><a class="reference internal" href="_modules/qubes.html#Label.icon_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.Label.icon_path" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Icon path</p>
+<p class="deprecated">
+<span class="versionmodified">Deprecated since version 2.0: </span>use <tt class="xref py py-meth docutils literal"><span class="pre">PyQt4.QtGui.QIcon.fromTheme()</span></tt> and <a class="reference internal" href="#qubes.Label.icon" title="qubes.Label.icon"><tt class="xref py py-attr docutils literal"><span class="pre">icon</span></tt></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt class="desc_signature" id="qubes.Label.icon_path_dispvm"><tt class="descname">icon_path_dispvm</tt><a class="reference internal" href="_modules/qubes.html#Label.icon_path_dispvm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.Label.icon_path_dispvm" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Icon path</p>
+<p class="deprecated">
+<span class="versionmodified">Deprecated since version 2.0: </span>use <tt class="xref py py-meth docutils literal"><span class="pre">PyQt4.QtGui.QIcon.fromTheme()</span></tt> and <a class="reference internal" href="#qubes.Label.icon_dispvm" title="qubes.Label.icon_dispvm"><tt class="xref py py-attr docutils literal"><span class="pre">icon_dispvm</span></tt></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt class="desc_signature" id="qubes.Label.index"><tt class="descname">index</tt><em class="property"> = None</em><a class="headerlink" href="#qubes.Label.index" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>numeric identificator of label</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt class="desc_signature" id="qubes.Label.name"><tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#qubes.Label.name" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>label&#8217;s name like &#8220;red&#8221; or &#8220;green&#8221;</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt class="desc_signature" id="qubes.PropertyHolder"><em class="property">class </em><tt class="descclassname">qubes.</tt><tt class="descname">PropertyHolder</tt><big>(</big><em>xml</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/qubes.html#PropertyHolder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.PropertyHolder" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Bases: <a class="reference internal" href="qubes-events.html#qubes.events.Emitter" title="qubes.events.Emitter"><tt class="xref py py-class docutils literal"><span class="pre">qubes.events.Emitter</span></tt></a></p>
+<p>Abstract class for holding <a class="reference internal" href="#qubes.property" title="qubes.property"><tt class="xref py py-class docutils literal"><span class="pre">qubes.property</span></tt></a></p>
+<p>Events fired by instances of this class:</p>
+<blockquote>
+<div><dl class="event">
+<dt class="desc_signature" id="event-property-load"><tt class="descname">property-load</tt><big>(</big><em>subject</em>, <em>event</em><big>)</big><a class="headerlink" href="#event-property-load" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Fired once after all properties are loaded from XML. Individual
+<tt class="docutils literal"><span class="pre">property-set</span></tt> events are not fired.</p>
+</dd></dl>
+
+<dl class="event">
+<dt class="desc_signature" id="event-property-set:&lt;propname&gt; (subject, event, name, newvalue[, oldvalue])"><tt class="descname">property-set:&lt;propname&gt; (subject, event, name, newvalue[, oldvalue])</tt><a class="headerlink" href="#event-property-set:<propname> (subject, event, name, newvalue[, oldvalue])" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Fired when property changes state. Signature is variable, <em>oldvalue</em> is
+present only if there was an old value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; Property name</li>
+<li><strong>newvalue</strong> &#8211; New value of the property</li>
+<li><strong>oldvalue</strong> &#8211; Old value of the property</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div></blockquote>
+<p>Members:</p>
+<dl class="method">
+<dt class="desc_signature" id="qubes.PropertyHolder.get_props_list"><tt class="descname">get_props_list</tt><big>(</big><em>load_stage=None</em><big>)</big><a class="reference internal" href="_modules/qubes.html#PropertyHolder.get_props_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.PropertyHolder.get_props_list" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>List all properties attached to this VM</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>load_stage</strong> (<tt class="xref py py-func docutils literal"><span class="pre">int()</span></tt> or <a class="reference external" href="http://docs.python.org/3/library/constants.html#None" title="(in Python v3.4)"><tt class="xref py py-obj docutils literal"><span class="pre">None</span></tt></a>) &#8211; Filter by load stage</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt class="desc_signature" id="qubes.PropertyHolder.load_properties"><tt class="descname">load_properties</tt><big>(</big><em>load_stage=None</em><big>)</big><a class="reference internal" href="_modules/qubes.html#PropertyHolder.load_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.PropertyHolder.load_properties" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Load properties from immediate children of XML node.</p>
+<p><tt class="docutils literal"><span class="pre">property-set</span></tt> events are not fired for each individual property.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>xml</strong> (<em>lxml.etree._Element</em>) &#8211; XML node reference</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt class="desc_signature" id="qubes.PropertyHolder.save_properties"><tt class="descname">save_properties</tt><big>(</big><em>with_defaults=False</em><big>)</big><a class="reference internal" href="_modules/qubes.html#PropertyHolder.save_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.PropertyHolder.save_properties" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Iterator that yields XML nodes representing set properties.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>with_defaults</strong> (<a class="reference external" href="http://docs.python.org/3/library/functions.html#bool" title="(in Python v3.4)"><em>bool</em></a>) &#8211; If <a class="reference external" href="http://docs.python.org/3/library/constants.html#True" title="(in Python v3.4)"><tt class="xref py py-obj docutils literal"><span class="pre">True</span></tt></a>, then it also includes properties which were not set explicit, but have default values filled.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt class="desc_signature" id="qubes.Qubes"><em class="property">class </em><tt class="descclassname">qubes.</tt><tt class="descname">Qubes</tt><big>(</big><em>store='/var/lib/qubes/qubes.xml'</em><big>)</big><a class="reference internal" href="_modules/qubes.html#Qubes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.Qubes" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Bases: <a class="reference internal" href="#qubes.PropertyHolder" title="qubes.PropertyHolder"><tt class="xref py py-class docutils literal"><span class="pre">qubes.PropertyHolder</span></tt></a></p>
+<p>Main Qubes application</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>store</strong> (<a class="reference external" href="http://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; path to <tt class="docutils literal"><span class="pre">qubes.xml</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>The store is loaded in stages:</p>
+<ol class="arabic simple">
+<li>In the first stage there are loaded some basic features from store
+(currently labels).</li>
+<li>In the second stage stubs for all VMs are loaded. They are filled
+with their basic properties, like <tt class="docutils literal"><span class="pre">qid</span></tt> and <tt class="docutils literal"><span class="pre">name</span></tt>.</li>
+<li>In the third stage all global properties are loaded. They often
+reference VMs, like default netvm, so they should be filled after
+loading VMs.</li>
+<li>In the fourth stage all remaining VM properties are loaded. They
+also need all VMs loaded, because they represent dependencies
+between VMs like aforementioned netvm.</li>
+<li>In the fifth stage there are some fixups to ensure sane system
+operation.</li>
+</ol>
+<p>This class emits following events:</p>
+<blockquote>
+<div><dl class="event">
+<dt class="desc_signature" id="event-domain-added"><tt class="descname">domain-added</tt><big>(</big><em>subject</em>, <em>event</em>, <em>vm</em><big>)</big><a class="headerlink" href="#event-domain-added" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>When domain is added.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>subject</strong> &#8211; Event emitter</li>
+<li><strong>event</strong> &#8211; Event name (<tt class="docutils literal"><span class="pre">'domain-added'</span></tt>)</li>
+<li><strong>vm</strong> &#8211; Domain object</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="event">
+<dt class="desc_signature" id="event-domain-deleted"><tt class="descname">domain-deleted</tt><big>(</big><em>subject</em>, <em>event</em>, <em>vm</em><big>)</big><a class="headerlink" href="#event-domain-deleted" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>When domain is deleted. VM still has reference to <tt class="docutils literal"><span class="pre">app</span></tt> object,
+but is not contained within VMCollection.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>subject</strong> &#8211; Event emitter</li>
+<li><strong>event</strong> &#8211; Event name (<tt class="docutils literal"><span class="pre">'domain-deleted'</span></tt>)</li>
+<li><strong>vm</strong> &#8211; Domain object</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div></blockquote>
+<p>Methods and attributes:</p>
+<dl class="method">
+<dt class="desc_signature" id="qubes.Qubes.add_new_vm"><tt class="descname">add_new_vm</tt><big>(</big><em>vm</em><big>)</big><a class="reference internal" href="_modules/qubes.html#Qubes.add_new_vm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.Qubes.add_new_vm" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Add new Virtual Machine to colletion</p>
+</dd></dl>
+
+<dl class="method">
+<dt class="desc_signature" id="qubes.Qubes.load"><tt class="descname">load</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qubes.html#Qubes.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.Qubes.load" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Throws EnvironmentError:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">failure on parsing store</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Throws xml.parsers.expat.ExpatError:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body">failure on parsing store</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt class="desc_signature" id="qubes.Qubes.save"><tt class="descname">save</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qubes.html#Qubes.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.Qubes.save" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Save all data to qubes.xml</p>
+</dd></dl>
+
+<dl class="method">
+<dt class="desc_signature" id="qubes.Qubes.save_labels"><tt class="descname">save_labels</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qubes.html#Qubes.save_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.Qubes.save_labels" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Serialize labels</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">lxml.etree._Element</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt class="desc_signature" id="qubes.Qubes.clockvm"><tt class="descname">clockvm</tt><a class="headerlink" href="#qubes.Qubes.clockvm" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Which VM to use as NTP proxy for updating AdminVM</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt class="desc_signature" id="qubes.Qubes.default_fw_netvm"><tt class="descname">default_fw_netvm</tt><a class="headerlink" href="#qubes.Qubes.default_fw_netvm" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Default NetVM for new ProxyVMs</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt class="desc_signature" id="qubes.Qubes.default_kernel"><tt class="descname">default_kernel</tt><a class="headerlink" href="#qubes.Qubes.default_kernel" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Which kernel to use when not overridden in VM</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt class="desc_signature" id="qubes.Qubes.default_netvm"><tt class="descname">default_netvm</tt><a class="headerlink" href="#qubes.Qubes.default_netvm" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Default NetVM for new AppVMs</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt class="desc_signature" id="qubes.Qubes.default_template"><tt class="descname">default_template</tt><a class="headerlink" href="#qubes.Qubes.default_template" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Default template for new AppVMs</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt class="desc_signature" id="qubes.Qubes.domains"><tt class="descname">domains</tt><em class="property"> = None</em><a class="headerlink" href="#qubes.Qubes.domains" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>collection of all VMs managed by this Qubes instance</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt class="desc_signature" id="qubes.Qubes.labels"><tt class="descname">labels</tt><em class="property"> = None</em><a class="headerlink" href="#qubes.Qubes.labels" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>collection of all available labels for VMs</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt class="desc_signature" id="qubes.Qubes.updatevm"><tt class="descname">updatevm</tt><a class="headerlink" href="#qubes.Qubes.updatevm" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Which VM to use as <tt class="docutils literal"><span class="pre">yum</span></tt> proxy for updating AdminVM and TemplateVMs</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt class="desc_signature" id="qubes.QubesHost"><em class="property">class </em><tt class="descclassname">qubes.</tt><tt class="descname">QubesHost</tt><a class="reference internal" href="_modules/qubes.html#QubesHost"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.QubesHost" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Bases: <a class="reference external" href="http://docs.python.org/3/library/functions.html#object" title="(in Python v3.4)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<p>Basic information about host machine</p>
+<dl class="method">
+<dt class="desc_signature" id="qubes.QubesHost.measure_cpu_usage"><tt class="descname">measure_cpu_usage</tt><big>(</big><em>previous=None</em>, <em>previous_time=None</em>, <em>wait_time=1</em><big>)</big><a class="reference internal" href="_modules/qubes.html#QubesHost.measure_cpu_usage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.QubesHost.measure_cpu_usage" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>measure cpu usage for all domains at once</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt class="desc_signature" id="qubes.QubesHost.memory_total"><tt class="descname">memory_total</tt><a class="reference internal" href="_modules/qubes.html#QubesHost.memory_total"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.QubesHost.memory_total" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Total memory, in bytes</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt class="desc_signature" id="qubes.QubesHost.no_cpus"><tt class="descname">no_cpus</tt><a class="reference internal" href="_modules/qubes.html#QubesHost.no_cpus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.QubesHost.no_cpus" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Number of CPUs</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt class="desc_signature" id="qubes.QubesVMMConnection"><em class="property">class </em><tt class="descclassname">qubes.</tt><tt class="descname">QubesVMMConnection</tt><a class="reference internal" href="_modules/qubes.html#QubesVMMConnection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.QubesVMMConnection" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Bases: <a class="reference external" href="http://docs.python.org/3/library/functions.html#object" title="(in Python v3.4)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<p>Connection to Virtual Machine Manager (libvirt)</p>
+<dl class="method">
+<dt class="desc_signature" id="qubes.QubesVMMConnection.init_vmm_connection"><tt class="descname">init_vmm_connection</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qubes.html#QubesVMMConnection.init_vmm_connection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.QubesVMMConnection.init_vmm_connection" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Initialize connection</p>
+<p>This method is automatically called when getting</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt class="desc_signature" id="qubes.QubesVMMConnection.libvirt_conn"><tt class="descname">libvirt_conn</tt><a class="reference internal" href="_modules/qubes.html#QubesVMMConnection.libvirt_conn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.QubesVMMConnection.libvirt_conn" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Connection to libvirt</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt class="desc_signature" id="qubes.QubesVMMConnection.offline_mode"><tt class="descname">offline_mode</tt><a class="reference internal" href="_modules/qubes.html#QubesVMMConnection.offline_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.QubesVMMConnection.offline_mode" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Check or enable offline mode (do not actually connect to vmm)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt class="desc_signature" id="qubes.QubesVMMConnection.xs"><tt class="descname">xs</tt><a class="reference internal" href="_modules/qubes.html#QubesVMMConnection.xs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.QubesVMMConnection.xs" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Connection to Xen Store</p>
+<p>This property in available only when running on Xen.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt class="desc_signature" id="qubes.VMCollection"><em class="property">class </em><tt class="descclassname">qubes.</tt><tt class="descname">VMCollection</tt><big>(</big><em>app</em><big>)</big><a class="reference internal" href="_modules/qubes.html#VMCollection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.VMCollection" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Bases: <a class="reference external" href="http://docs.python.org/3/library/functions.html#object" title="(in Python v3.4)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<p>A collection of Qubes VMs</p>
+<p>VMCollection supports <tt class="docutils literal"><span class="pre">in</span></tt> operator. You may test for <tt class="docutils literal"><span class="pre">qid</span></tt>, <tt class="docutils literal"><span class="pre">name</span></tt>
+and whole VM object&#8217;s presence.</p>
+<p>Iterating over VMCollection will yield machine objects.</p>
+<dl class="method">
+<dt class="desc_signature" id="qubes.VMCollection.add"><tt class="descname">add</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="_modules/qubes.html#VMCollection.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.VMCollection.add" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Add VM to collection</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>value</strong> (<a class="reference internal" href="qubes-vm/index.html#qubes.vm.BaseVM" title="qubes.vm.BaseVM"><em>qubes.vm.BaseVM</em></a>) &#8211; VM to add</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.4)"><strong>TypeError</strong></a> &#8211; when value is of wrong type</li>
+<li><a class="reference external" href="http://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.4)"><strong>ValueError</strong></a> &#8211; when there is already VM which has equal <tt class="docutils literal"><span class="pre">qid</span></tt></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt class="desc_signature" id="qubes.VMCollection.items"><tt class="descname">items</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qubes.html#VMCollection.items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.VMCollection.items" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Iterate over <tt class="docutils literal"><span class="pre">(qid,</span> <span class="pre">vm)</span></tt> pairs</p>
+</dd></dl>
+
+<dl class="method">
+<dt class="desc_signature" id="qubes.VMCollection.keys"><tt class="descname">keys</tt><big>(</big><big>)</big><a class="headerlink" href="#qubes.VMCollection.keys" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Iterate over all qids</p>
+<p>qids are sorted by numerical order.</p>
+</dd></dl>
+
+<dl class="method">
+<dt class="desc_signature" id="qubes.VMCollection.names"><tt class="descname">names</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qubes.html#VMCollection.names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.VMCollection.names" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Iterate over all names</p>
+<p>names are sorted by lexical order.</p>
+</dd></dl>
+
+<dl class="method">
+<dt class="desc_signature" id="qubes.VMCollection.qids"><tt class="descname">qids</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qubes.html#VMCollection.qids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.VMCollection.qids" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Iterate over all qids</p>
+<p>qids are sorted by numerical order.</p>
+</dd></dl>
+
+<dl class="method">
+<dt class="desc_signature" id="qubes.VMCollection.values"><tt class="descname">values</tt><big>(</big><big>)</big><a class="headerlink" href="#qubes.VMCollection.values" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Iterate over all machines</p>
+<p>vms are sorted by qid.</p>
+</dd></dl>
+
+<dl class="method">
+<dt class="desc_signature" id="qubes.VMCollection.vms"><tt class="descname">vms</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/qubes.html#VMCollection.vms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.VMCollection.vms" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Iterate over all machines</p>
+<p>vms are sorted by qid.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="data">
+<dt class="desc_signature" id="qubes.MAX_NETID"><tt class="descclassname">qubes.</tt><tt class="descname">MAX_NETID</tt><em class="property"> = 253</em><a class="headerlink" href="#qubes.MAX_NETID" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>FIXME documentation</p>
+</dd></dl>
+
+<dl class="data">
+<dt class="desc_signature" id="qubes.MAX_QID"><tt class="descclassname">qubes.</tt><tt class="descname">MAX_QID</tt><em class="property"> = 253</em><a class="headerlink" href="#qubes.MAX_QID" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>FIXME documentation</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt class="desc_signature" id="qubes.VMProperty"><tt class="descclassname">qubes.</tt><tt class="descname">VMProperty</tt><a class="reference internal" href="_modules/qubes.html#VMProperty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.VMProperty" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Property that is referring to a VM</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>vmclass</strong> (<a class="reference external" href="http://docs.python.org/3/library/functions.html#type" title="(in Python v3.4)"><em>type</em></a>) &#8211; class that returned VM is supposed to be instance of</td>
+</tr>
+</tbody>
+</table>
+<p>and all supported by <a class="reference internal" href="#qubes.property" title="qubes.property"><tt class="xref py py-class docutils literal"><span class="pre">property</span></tt></a> with the exception of <tt class="docutils literal"><span class="pre">type</span></tt> and <tt class="docutils literal"><span class="pre">setter</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt class="desc_signature" id="qubes.property"><tt class="descclassname">qubes.</tt><tt class="descname">property</tt><a class="reference internal" href="_modules/qubes.html#property"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qubes.property" title="Permalink to this definition">¶</a></dt>
+<dd class="desc_content"><p>Qubes property.</p>
+<p>This class holds one property that can be saved to and loaded from
+<tt class="file docutils literal"><span class="pre">qubes.xml</span></tt>. It is used for both global and per-VM properties.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; name of the property</li>
+<li><strong>setter</strong> (<a class="reference external" href="http://docs.python.org/library/collections.html#collections.Callable" title="(in Python v2.7)"><em>collections.Callable</em></a>) &#8211; if not <a class="reference external" href="http://docs.python.org/3/library/constants.html#None" title="(in Python v3.4)"><tt class="xref py py-obj docutils literal"><span class="pre">None</span></tt></a>, this is used to initialize value; first parameter to the function is holder instance and the second is value; this is called before <tt class="docutils literal"><span class="pre">type</span></tt></li>
+<li><strong>type</strong> (<a class="reference external" href="http://docs.python.org/3/library/functions.html#type" title="(in Python v3.4)"><em>type</em></a>) &#8211; if not <a class="reference external" href="http://docs.python.org/3/library/constants.html#None" title="(in Python v3.4)"><tt class="xref py py-obj docutils literal"><span class="pre">None</span></tt></a>, value is coerced to this type</li>
+<li><strong>default</strong> (<a class="reference external" href="http://docs.python.org/3/library/functions.html#object" title="(in Python v3.4)"><em>object</em></a>) &#8211; default value</li>
+<li><strong>load_stage</strong> (<a class="reference external" href="http://docs.python.org/3/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; stage when property should be loaded (see <a class="reference internal" href="#qubes.Qubes" title="qubes.Qubes"><tt class="xref py py-class docutils literal"><span class="pre">Qubes</span></tt></a> for description of stages)</li>
+<li><strong>order</strong> (<a class="reference external" href="http://docs.python.org/3/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; order of evaluation (bigger order values are later)</li>
+<li><strong>doc</strong> (<a class="reference external" href="http://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; docstring; you may use RST markup</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+				</div>
+			</div>
+			<div id="sidebar-right" class="computer only four wide column">
+				<div class="ui horizontal segment">
+					<!-- vim: set ts=2 sw=2 :-->
+
+<div class="container"-->
+  <h3>Callout Toggles</h3>
+  <div id="callout1" class="callout class">
+	  <div id="callout2" class="callout method">
+
+			<div id="toggle-callout-outer" class="ui toggle checkbox" 
+				data-on-title="Turn Off"
+				data-on-content="Click to turn off outer callouts"
+				data-off-title="Turn On"
+				data-off-content="Click to turn on outer callouts"
+				data-offset="-15">
+					<input type="checkbox" name="outer-callout">
+					<!--label>Turn on outer callout</label-->
+			</div>
+
+			<div id="toggle-callout-inner" class="ui toggle checkbox" 
+				data-on-title="Turn Off"
+				data-on-content="Click to turn off inner callouts"
+				data-off-title="Turn On"
+				data-off-content="Click to turn on inner callouts"
+				data-offset="-15">
+					<input type="checkbox" name="inner-callout">
+					<!--label>Toggle inner callout</label-->
+			</div>
+		</div>
+	</div>
+
+  <div class="ui divider"></div>
+
+  <h3>Table of Contents</h3>
+  
+  
+
+  <div class="ui divider"></div>
+<ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">qubes</span></tt> &#8211; Common concepts</a></li>
+</ul>
+
+  <a class="item text" href="_sources/qubes.txt"
+     rel="nofollow">Source</a>
+<form action="search.html" method="get">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+					
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="footer" class="footer">
+		<div class="container">
+			<p class="pull-right">
+				<a href="#">Back to top</a>
+				
+					<br/>
+					
+  <a class="item text" href="_sources/qubes.txt"
+     rel="nofollow">Source</a>
+				
+			</p>
+			<p>
+					&copy; Copyright 2010-2014, Invisible Things Lab.<br/>
+				Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.1.3.<br/>
+			</p>
+		</div>
+	</div>
+  </body>
+</html>

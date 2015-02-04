@@ -85,12 +85,12 @@ December 8, 2014
     # git install steps:
     git clone https://github.com/git/git.git
     cd git git fetch
-    
+
     git checkout v2.2.0
     git verify-tag v2.2.0
     #yum erase git  # No point in removing existing git if you want kdevelop* + perl-Git
     make configure
-    
+
     ./configure --prefix=/usr
     make all doc sudo
     make install install-doc install-html; # as root
@@ -130,10 +130,13 @@ December 12, 2014
 
 .. CODE::
 
-    pylint --rcfile=/path/to/salt/.pylintrc salt/dir/to/lint autopep8
-       --ignore E309 --aggressive --aggressive --experimental autopep8
+    pylint --rcfile=/path/to/salt/.pylintrc salt/dir/to/lint
+    autopep8 --ignore E309 --aggressive --aggressive --experimental
+    autopep8 --ignore E309 --max-line-length 79 --experimental
+    autopep8 --ignore E309 --max-line-length 79 --experimental -a -a
+    autopep8 -a -a
 
-       --ignore E309 --max-line-length 79 --experimental pep8 -a -a
+    # autopep8 --ignore E309 -a -i
 
 **--experimental**:  Better handling of line formatting E301 - Put a blank line
 between a class docstring and its first method declaration.  E309 - Put a blank
@@ -228,7 +231,7 @@ TODO (at  some later date):
 
 ISSUES:
   - I had a few issues that took more time than I would have liked to to figure
-    out. 
+    out.
   - [Solved] First issue was trying to get toggle's popup to change text based
     on state
   - [Solved] Was trying to use cookies to save toggle state, but cookies did
