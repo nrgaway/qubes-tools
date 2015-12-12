@@ -1,0 +1,597 @@
+#! /usr/bin/env python
+# vim: set ft=python ts=4 sw=4 sts=4 et :
+# -*- coding: utf-8 -*-
+
+# repo --- A Git Repo Management Tool
+#
+# Copyright (C) 2015  Jason Mehring
+#
+# License: GPL-2+
+#
+# ------------------------------------------------------------------------------
+#
+#               SH...... pip install sh
+#               https://amoffat.github.io/sh
+#
+'''
+# The Makefile configuration file must contain these additonal targets:
+
+# SRC_DIR is the relative path from the directory where your Makefile resides
+SRC_DIR := qubes-src
+
+# Returns variable value
+# Example usage: GET_VAR=DISTS_VM make get-var
+.PHONY: get-var
+get-var::
+	@GET_VAR=$${!GET_VAR}; \
+	echo "$${GET_VAR}"
+
+# Each included Makefile configuration sould also include and about to be
+# able to identify which configuration files are being used
+.PHONY: about
+about::
+	@echo "extended-rules.conf"
+
+# To automatically add remotes and track a remote branch also add the `REPO_TRACK`
+# variable to your Makefile configuration using the sample structure listed below:
+REPO_TRACK :=
+REPO_TRACK += builder-fedora:master:marmarek:master
+REPO_TRACK += builder-fedora:feature_branch:marmarek:master
+REPO_TRACK += builder-debian:master:marmarek:master
+REPO_TRACK += <local repo name>:<local branch>:<remote repo>:<remote branch>
+
+# GIT_REMOTE_BASEURL
+# The default remote GIT_REMOTE_BASEURL is `https://github.com`.  Set this variable
+# to something else if needed within the Makefile configuration.
+
+# REPO_IGNORE
+# list of repo paths to ignore when --ignore flag is passed if the repos are not
+# listed after the --ignore flag
+'''
+
+#from __future__ import unicode_literals
+
+import sys
+import os
+import locale
+import re
+import argparse
+
+BASE_DIR = os.getcwd()
+LIBS_DIR = os.path.join(BASE_DIR, 'libs')
+if os.path.exists(LIBS_DIR) and os.path.isdir(LIBS_DIR):
+    if LIBS_DIR not in sys.path:
+        sys.path.insert(1, LIBS_DIR)
+
+import sh
+from ansi import ANSIColor
+
+# This is almost always a good thing to do at the beginning of your programs.
+locale.setlocale(locale.LC_ALL, '')
+
+
+class Makefile:
+    '''
+    '''
+    GIT_REMOTE_BASEURL = 'https://github.com/'
+
+    def __init__(self, directory):
+        ''''''
+        self.options = {}
+        self.directory = os.path.abspath(directory)
+        self.src_dir = os.path.join(directory, self.get_var('SRC_DIR').strip())
+        self.ignore = self.get_var('REPO_IGNORE').strip().split()
+
+        git_baseurl = self.get_var('GIT_REMOTE_BASEURL').strip()
+        self.git_baseurl = git_baseurl if git_baseurl else self.GIT_REMOTE_BASEURL
+
+    def get_var_object(self, var):
+        '''
+        Returns the raw sh output object which contains many attrs like stderr,
+        etc.
+        '''
+        from sh import make
+        env = os.environ.copy()
+
+        if ':' in var:
+            env['GET_VARS'] = var
+            cmd = '--silent --always-make -C {0} get-vars'.format(self.directory)
+        else:
+            env['GET_VAR'] = var
+            cmd = '--silent --always-make -C {0} get-var'.format(self.directory)
+
+        return make(cmd.split(), _env=env)
+
+    def get_var(self, var):
+        return self.get_var_object(var).stdout
+    
+
+def contains(expressions, text):
+    for expression in expressions:
+        if re.search(r'(?sm){0}'.format(expression), text):
+            return expression
+        #if expression in text:
+        #    return expression
+    return False
+
+
+def out(path, sh_result, color=None):
+    ansi = ANSIColor()
+    if not color:
+        color = ansi['red']
+    ansi['color'] = color
+
+    git = sh.git.bake(_cwd=path)
+    branch = git('rev-parse', '--abbrev-ref', 'HEAD').stdout.strip()
+
+    print '================================================================================'
+    print '{ansi[bold]}{ansi[blue]}{0}{ansi[normal]} [{1}]'.format(path, branch, ansi=ansi)
+    print '================================================================================'
+    print '{ansi[color]}{0}{ansi[normal]}'.format(sh_result.stdout.strip(), ansi=ansi)
+    print
+
+def show(text, color=True):
+    if not color:
+        text = re.sub(r'\033\[?.*?[\@-~]', '', text)
+    print text
+
+def walk(function, **kwargs):
+    makefile_directory = kwargs['makefile_directory']
+
+    dirs = []
+    cache = []
+    makefile = Makefile(makefile_directory)
+
+    # Make paths absolute
+    if kwargs['dirs']:
+        for path in kwargs['dirs']:
+            dirs.append(os.path.abspath(path))
+    else:
+        for path in os.listdir(makefile.src_dir):
+            dirs.append(os.path.join(makefile.src_dir, path))
+
+        if kwargs['include_basedir'] and makefile_directory not in dirs:
+            dirs.append(makefile.directory)
+
+    # Remove ignored repos from dirs
+    if 'ignore' in kwargs and kwargs['ignore'] is not None:
+        for index, path in enumerate(kwargs['ignore'] + makefile.ignore):
+            for path in [path, os.path.join(makefile.src_dir, path)]:
+                if os.path.exists(path) and os.path.isdir(path) and os.path.abspath(path) in dirs:
+                    while path in dirs:
+                        dirs.remove(path)
+                    break
+
+    # Convert Makefile $(REPO_TRACK) into a dictionary
+    repos = {}
+    paths = []
+    branches = []
+    for track_item in makefile.get_var('REPO_TRACK').split():
+        repo = dict(zip(['path', 'branch', 'remote', 'remote_branch'], track_item.split(':')))
+        repo['abspath'] = os.path.abspath(os.path.join(makefile.src_dir, repo['path']))
+        paths.append(repo['abspath'])
+        branches.append('BRANCH_{0}'.format(os.path.basename(repo['abspath']).replace('-', '_')))
+        repos[repo['abspath']] = repo
+    
+    for path, branch in zip(paths, makefile.get_var(':'.join(branches)).split('\n')):
+        print 'Path: {0}, Branch: {1}'.format(path.strip(), branch.strip())
+        repos[path]['default_branch'] = branch.strip() or 'master'
+
+    for path in dirs:
+        if not os.path.isdir(path):
+            continue
+
+        if path in cache:
+            continue
+        else:
+            cache.append(path)
+
+        git = sh.git.bake(_cwd=path)
+
+        # Fetch
+        fetch(path, makefile, **kwargs)
+
+        # Do not re-call fetch is mode is fetch
+        if function != fetch:
+            function(path, makefile, repos=repos, **kwargs)
+
+
+def fetch(path, makefile, **kwargs):
+    git = sh.git.bake(_cwd=path)
+    if kwargs['mode'] == 'fetch' or kwargs['fetch']:
+        print 'Fetching for: ', path
+        git.fetch('--all')
+
+
+def remotes(path, makefile, **kwargs):
+    track_list = makefile.get_var('REPO_TRACK').split()
+    if not track_list:
+        return
+
+    ansi = ANSIColor()
+
+    for track_item in track_list:
+        track_path, branch, remote, remote_branch = track_item.split(':')
+        track_path = os.path.abspath(os.path.join(makefile.src_dir, track_path))
+
+        if track_path != path:
+            continue
+
+        print 'Checking remotes for: {0} [{1}]'.format(path, branch)
+
+        if not os.path.exists(path) or not os.path.isdir(path):
+            continue
+
+        git = sh.git.bake(_cwd=path)
+
+        # Add git remote...
+        origin = git.remote('-v').stdout
+        match = re.search(r'origin[\s]+.*[/](.+)\s+\(fetch\).*', origin)
+
+        # XXX: Allowing exception to be raised if no match so was can deal with implementing it later
+        remote_url = '{0}{1}/{2}'.format(makefile.git_baseurl, remote, match.group(1).strip())
+
+        if not re.search(r'(?m){0}'.format(remote_url), origin):
+            print '{ansi[bold]}{ansi[green]}Adding remote {0}: {1}{ansi[normal]}'.format(remote, remote_url, ansi=ansi)
+            try:
+                git.remote.add(remote, remote_url)
+            except sh.ErrorReturnCode, msg:
+                print '{ansi[red]}{0}{ansi[normal]}'.format(msg, ansi=ansi)
+
+            # Fetch
+            print git.fetch('--all')
+
+        # Watch remote branch
+        try:
+            if branch == git('rev-parse', '--abbrev-ref', 'HEAD').stdout.strip():
+                print git.branch('-u', '{0}/{1}'.format(remote, remote_branch), branch)
+                break
+        except sh.ErrorReturnCode:
+            pass
+
+
+def status(path, makefile, **kwargs):
+    ansi =  ANSIColor()
+    git = sh.git.bake(_cwd=path)
+
+    branch = git('rev-parse', '--abbrev-ref', 'HEAD').stdout.strip()
+    print 'Checking status for: {0} [{1}]'.format(path, branch)
+
+    ignore = []
+    #ignore = [
+    #    'HEAD detached',
+    #    'Not currently on any branch',
+    #    ]
+
+    # expression : color (None uses default color)
+    report = {
+        'detached': None,
+        'diverged': None,
+        'Your branch is ahead': ansi['bold']+ansi['green'],
+        'Your branch is behind': None,
+        'Changes not staged for commit': None,
+        'Untracked files': None,
+        }
+
+    result = git.status()
+
+    if contains(ignore, result.stdout):
+        return
+
+    expression = contains(report, result.stdout)
+    if expression:
+        out(path, result, color=report[expression])
+
+
+def rebase(path, makefile, **kwargs):
+    ignore = [
+        'detached',
+        'Your branch is ahead',
+        'Changes not staged for commit',
+        'Not currently on any branch',
+        ]
+
+    ansi = ANSIColor()
+    git = sh.git.bake(_cwd=path)
+
+    result = git.status()
+    if contains(ignore, result.stdout):
+        return
+
+    match = re.search(r'(?sm)(Your branch is behind).*\'(?P<remote_branch>.*)\'.*(and can be fast-forwarded)', result.stdout)
+    if match:
+        branch = git('rev-parse', '--abbrev-ref', 'HEAD').stdout.strip()
+        remote_branch = match.groupdict()['remote_branch']
+
+        print '================================================================================'
+        print '{ansi[bold]}{ansi[blue]}{0}{ansi[normal]} [{1}]'.format(path, branch, ansi=ansi)
+        print '================================================================================'
+        print '{ansi[red]}Attempting to rebase local branch {0} with {1}{ansi[normal]}'.format(branch, remote_branch, ansi=ansi)
+        print '{ansi[white]}{0}{ansi[normal]}'.format(result.stdout, ansi=ansi)
+        result = git.rebase(remote_branch)
+        print '{ansi[red]}{0}{ansi[normal]}'.format(result, ansi=ansi)
+
+
+def push(path, makefile, **kwargs):
+    ignore = [
+        'detached',
+        'Your branch is ahead',
+        'Changes not staged for commit',
+        'Not currently on any branch',
+        ]
+
+    ansi = ANSIColor()
+    git = sh.git.bake(_cwd=path)
+
+    result = git.status()
+    if contains(ignore, result.stdout):
+        return
+
+    remote = 'origin'
+    branch = git('rev-parse', '--abbrev-ref', 'HEAD').stdout.strip()
+
+    print '================================================================================'
+    print '{ansi[bold]}{ansi[blue]}{0}{ansi[normal]} [{1}]'.format(path, branch, ansi=ansi)
+    print '================================================================================'
+    print '{ansi[red]}Attempting to push local branch {0} to {1}/{2}{ansi[normal]}'.format(branch, remote, branch, ansi=ansi)
+    print '{ansi[white]}{0}{ansi[normal]}'.format(result.stdout, ansi=ansi)
+    result = git.push('--tags', remote, branch)
+    print '{ansi[red]}{0}{ansi[normal]}'.format(result, ansi=ansi)
+
+
+def tracking(path, makefile, repos, **kwargs):
+    '''
+    '''
+    if not repos:
+        print 'REPO_TRACK not found in configuration files'
+        return
+
+    ansi = ANSIColor()
+
+    # Convert Makefile $(REPO_TRACK) into a dictionary
+#    repos = {}
+#    for track_item in track_list:
+#        repo = dict(zip(['path', 'branch', 'remote', 'remote_branch'], track_item.split(':')))
+#        repo['abspath'] = os.path.abspath(os.path.join(makefile.src_dir, repo['path']))
+#        repos[repo['abspath']] = repo
+
+    git = sh.git.bake(_cwd=path)
+    default = dict(branch='', remote='', remote_branch='', info='')
+
+    git_status = git.status('--porcelain', '--branch').stdout
+
+    # Example output of `git status --porcelain --branch` (First line only)
+    #   ## staging
+    # or
+    #   ## master...marmarek/master [behind 13]
+    re_status = re.compile(r'''(?x)
+            ^[#]{2}\s                       # '## '
+            (?P<branch> .*?)                # 'master'
+            (
+                [.]{3}                      # '...'
+                (?P<remote>.*)              # 'marmarek'
+                /                           # '/'
+                (?P<remote_branch>.*)\b     # 'master'
+                (?:\s|)                     # ' ' or None
+                (?P<info>[[].*[]]|)         # '[.*]' or None
+                $
+            |$)
+    ''')
+    re_dirty = re.compile(r'''(?xms)
+            ^.[M?]\s.*$
+    ''')
+    status = re_status.search(git_status.split('\n')[0])
+    dirty = re_dirty.search('\n'.join(git_status.split('\n')[1:]))
+    
+    if status:
+        status = {k:v or ''  for k, v in status.groupdict().items()}
+    else:
+        status = default
+
+    if path in repos:
+        repo = repos[path]
+        path = os.path.basename(path)
+        branch = remote = remote_branch = info = ''
+        label = '{ansi[bold]}{ansi[blue]}    Tracking: {ansi[normal]}'.format(
+                ansi=ansi)
+        separator = '*'
+
+        if dirty:
+            separator = '{ansi[bold]}{ansi[red]}{0}{ansi[normal]}'.format(separator, ansi=ansi)
+
+        ansi['branch'] = ansi['bold']+ansi['red'] if dirty else ansi['white']
+        
+        # Not on default branch
+        if status['branch'] != repo['default_branch']:
+            ansi['branch'] = ansi['inverse']+ansi['branch']
+
+        #ansi['remote'] = ansi['blue'] if status['branch'] != status['remote_branch'] else ansi['white']
+        #ansi['remote'] = ansi['red'] if status['remote'] == 'origin' else ansi['remote']
+        #ansi['remote_branch'] = ansi['blue'] if status['branch'] != status['remote_branch'] else ansi['white']
+        
+        ansi['remote'] = ansi['white']
+        ansi['remote_branch'] = ansi['white']
+        ansi['info'] = ansi['green'] if 'ahead' in status['info'] else ansi['red']
+
+        if status['branch']:
+            branch = '{0} {ansi[branch]}{1}{ansi[normal]}'.format(separator, status['branch'], ansi=ansi)
+        
+        if status['remote']:
+            remote = '{ansi[remote]}...{0}/{ansi[normal]}{ansi[remote_branch]}{1}{ansi[normal]}'.format(status['remote'], status['remote_branch'], ansi=ansi)
+       
+        if status['info']:
+            info = '{ansi[bold]}{ansi[info]}{0}{ansi[normal]}'.format(status['info'], ansi=ansi)
+        
+        fmt = "{{0}} {{1:<{0}}} {{2:<{1}}}{{3}} {{4:<{1}}}".format(35, 12, 12)
+        print fmt.format(label, os.path.basename(path), branch, remote, info)
+
+    else:
+        print '{ansi[bold]}{ansi[red]}Not Tracking:  {0}{ansi[normal]}'.format(os.path.basename(path), ansi=ansi)
+
+def _report(path, makefile, **kwargs):
+    '''
+    git log --oneline --author nrgaway@gmail.com --after=2015-05-01 --no-merges
+    repo --nofetch report --author nrgaway@gmail.com --after=2015-05-01 --before=2015-06-01
+    repo --no-color --nofetch report --author nrgaway@gmail.com --after=2015-05-01 --before=2015-06-01
+    '''
+    def extend(options, label):
+        if kwargs.get(keyword, None):
+            options.append('--{0}={1}'.format(keyword, kwargs[keyword]))
+
+    ansi = ANSIColor()
+    git = sh.git.bake(_cwd=path)
+    mode = kwargs.get('mode', 'details')
+    header = kwargs.get('header', False)
+    since = ''
+    until = ''
+
+    # Current branch
+    branch = git('rev-parse', '--abbrev-ref', 'HEAD').stdout.strip()
+
+    # Get github user id
+    email = git.config('--get', 'user.email').strip()
+    name = git.config('--get', 'user.name').strip()
+    match = re.search(r'(.*)[@](.*)', email)
+    author = match.group(1)
+
+    # Get origin...
+    origin = git.config('--get', 'remote.origin.url').strip()
+    if origin.startswith('git@github.com:'):
+        origin = origin.replace('git@github.com:', 'https://github.com/')
+    origin_author = '{0}/commits?author={1}'.format(origin[:-4], author)
+    origin_commit = '{0}/commit/'.format(origin[:-4], author)
+    repo = origin[:-4].split('/')[-1].upper()
+
+    indent = ' ' * 4
+    if mode == 'details':
+        format = '--format={0}%ad (%Cblue%cd%Creset) %G? %Cgreen%h%Creset %<(60,trunc)%s'.format(indent)
+    else:
+        #format = '--format={0}{1}%Cgreen%H%Creset'.format(indent, origin_commit)
+        format = '--format={0}{1}%Cgreen%h%Creset %<(80,trunc)%s'.format(indent, origin_commit)
+        #for i in $COMPONENTS; do git -C $i log --pretty=oneline --abbrev-commit --author=nrgaway --since="2015-07-01" --until=2015-08-31|sed "s,^,https://github.com/nrgaway/qubes-$i/commit/,"; done
+
+
+    options = ['--no-pager',
+               'log',
+               #'--all',
+               format,
+               '--date=short',
+               '--no-merges',
+               ]
+
+    # Append CLI keyword to options
+    keywords = ['author', 'since', 'after', 'until', 'before']
+    for keyword in keywords:
+        if keyword in ['since', 'after'] and keyword in kwargs:
+            since = kwargs[keyword]
+
+        elif keyword in ['until', 'before'] and keyword in kwargs:
+            until = kwargs[keyword]
+
+        extend(options, keyword)
+
+    result = git(options).strip()
+    if result:
+        if header:
+            show('')
+            show("### '{0}' -- Commits by {1} ({2} to {3})".format(repo, name, since or '?', until or '?'), color=kwargs['color'])
+            show('')
+            show('{ansi[bold]}{ansi[blue]}{0}{ansi[normal]} [{1}]'.format(origin_author, branch, ansi=ansi), color=kwargs['color'])
+            show('')
+            #       '2015-05-29 (2015-05-29) N f3ab0f3'
+            ruler = '---------- ------------ - -------'
+            show('{0}{ansi[bold]} Authored    Commited  GPG  Hash  Comments{ansi[normal]}'.format(indent, ansi=ansi), color=kwargs['color'])
+            show('{0}{ansi[bold]}{1} {2}{ansi[normal]}'.format(indent, ruler, '-' * (80-len(ruler)-1), ansi=ansi), color=kwargs['color'])
+        show('{0}{ansi[black]}{1}{ansi[normal]}'.format(indent, result, ansi=ansi), color=kwargs['color'])
+        show('')
+
+
+def report(path, makefile, **kwargs):
+    kwargs['mode'] = 'details'
+    kwargs['header'] = True
+    _report(path, makefile, **kwargs)
+
+    kwargs['mode'] = 'commit_url'
+    kwargs['header'] = False
+    _report(path, makefile, **kwargs)
+
+
+def main(argv):
+    parser = argparse.ArgumentParser()
+
+    # --- Modes -------------------------------------------------------------------
+    subparsers = parser.add_subparsers(dest='mode', help='commands')
+
+    fetch = subparsers.add_parser('fetch',
+            help='Fetch all repos')
+    fetch.add_argument('dirs', action='store', default=[], nargs='*')
+    fetch.add_argument('--ignore', nargs='*', action='store',
+            help='List of repos to ignore')
+
+    status = subparsers.add_parser('status',
+            help='Display git status of all repos')
+    status.add_argument('dirs', action='store', default=[], nargs='*')
+    status.add_argument('--ignore', nargs='*', action='store',
+            help='List of repos to ignore')
+
+    rebase = subparsers.add_parser('rebase',
+            help='Rebase repos')
+    rebase.add_argument('dirs', action='store', default=[], nargs='*')
+    rebase.add_argument('--ignore', nargs='*', action='store',
+            help='List of repos to ignore')
+
+    remotes = subparsers.add_parser('remotes',
+            help='Add remotes to git repos selected in Makefile')
+    remotes.add_argument('dirs', action='store', default=[], nargs='*')
+    remotes.add_argument('--ignore', nargs='*', action='store',
+            help='List of repos to ignore')
+
+    push = subparsers.add_parser('push',
+            help='Push repos to origin')
+    push.add_argument('dirs', action='store', default=[], nargs='*')
+    push.add_argument('--ignore', nargs='*', action='store',
+            help='List of repos to ignore')
+
+    tracking = subparsers.add_parser('tracking',
+            help='Test REPO_TRACK to make sure paths exist')
+    tracking.add_argument('dirs', action='store', default=[], nargs='*')
+
+    report = subparsers.add_parser('report',
+            help='Report commit history by certain author with options start date')
+    report.add_argument('dirs', action='store', default=[], nargs='*')
+    report.add_argument('--author', nargs='?', action='store',
+            help='Author name or email address')
+    report.add_argument('--after', nargs='?', action='store',
+            help='Date to start report')
+    report.add_argument('--before', nargs='?', action='store',
+            help='Date to end report')
+    report.add_argument('--since', nargs='?', action='store',
+            help='Date to start report')
+
+    # --- Optionals ---------------------------------------------------------------
+    parser.add_argument('-C', '--makefile', dest='makefile_directory',
+            action='store', default=os.getcwd(),
+            help='Makefile configuration file path')
+    parser.add_argument('--nofetch', dest='fetch',
+            action='store_false', default=True,
+            help='Do not fetch repos before the selected mode is run')
+    parser.add_argument('--exclude-basedir', dest='include_basedir',
+            action='store_false', default=True,
+            help='Do not include Makefile base directory in directory list')
+    parser.add_argument('--no-color', dest='color',
+            action='store_false', default=True,
+            help='Disable color output')
+
+    args = parser.parse_args()
+    run_list = []
+
+    # Dispatch mode
+    if args.mode in ['fetch', 'status', 'remotes', 'rebase', 'push', 'tracking', 'report']:
+        print 'DISPATCHING:', args.mode
+        function = globals()[args.mode]
+        walk(function, **vars(args))
+
+
+if __name__ == '__main__':
+    main(sys.argv)
+    sys.exit(0)
