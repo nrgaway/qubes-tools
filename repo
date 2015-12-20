@@ -174,7 +174,7 @@ def walk(function, **kwargs):
         repos[repo['abspath']] = repo
     
     for path, branch in zip(paths, makefile.get_var(':'.join(branches)).split('\n')):
-        print 'Path: {0}, Branch: {1}'.format(path.strip(), branch.strip())
+        #print 'Path: {0}, Branch: {1}'.format(path.strip(), branch.strip())
         repos[path]['default_branch'] = branch.strip() or 'master'
 
     for path in dirs:
