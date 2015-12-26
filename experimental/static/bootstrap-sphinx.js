@@ -1,0 +1,1 @@
+../../core-admin/doc/_themes/qubes/static/bootstrap-sphinx.js_t

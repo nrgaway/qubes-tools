@@ -1,0 +1,5 @@
+python-pip
+python3-pip
+
+# May help with theme colours
+gtk2-engines

@@ -1,0 +1,13 @@
+*.egg
+*.egg-info/
+*.pyc
+.*.swp
+.travis-solo/
+MANIFEST
+README.html
+__pycache__/
+build/
+dist/
+htmlcov/
+.coverage
+.idea/

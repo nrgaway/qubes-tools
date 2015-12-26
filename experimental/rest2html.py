@@ -1,0 +1,193 @@
+#!/usr/bin/env python
+"""
+rest2html - A small wrapper file for parsing ReST files at GitHub.
+
+Written in 2008 by Jannis Leidel <jannis@leidel.info>
+
+Brandon Keepers <bkeepers@github.com>
+Bryan Veloso <bryan@revyver.com>
+Chris Wanstrath <chris@ozmm.org>
+Dave Abrahams <dave@boostpro.com>
+Garen Torikian <garen@github.com>
+Gasper Zejn <zejn@kiberpipa.org>
+Michael Jones <m.pricejones@gmail.com>
+Sam Whited <sam@samwhited.com>
+Tyler Chung <zonyitoo@gmail.com>
+Vicent Marti <tanoku@gmail.com>
+
+To the extent possible under law, the author(s) have dedicated all copyright
+and related and neighboring rights to this software to the public domain
+worldwide. This software is distributed without any warranty.
+
+You should have received a copy of the CC0 Public Domain Dedication along with
+this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+"""
+
+__author__ = "Jannis Leidel"
+__license__ = "CC0"
+__version__ = "0.1"
+
+import sys
+import os
+
+# This fixes docutils failing with unicode parameters to CSV-Table. The -S
+# switch and the following 2 lines can be removed after upgrading to python 3.
+reload(sys)
+sys.setdefaultencoding('utf-8')
+import site
+
+try:
+    import locale
+    locale.setlocale(locale.LC_ALL, '')
+except:
+    pass
+
+import codecs
+
+from docutils.core import publish_parts
+from docutils.writers.html4css1 import Writer, HTMLTranslator
+
+SETTINGS = {
+    'cloak_email_addresses': True,
+    'file_insertion_enabled': False,
+    'raw_enabled': False,
+    'strip_comments': True,
+    'doctitle_xform': True,
+    'sectsubtitle_xform': True,
+    'initial_header_level': 2,
+    'report_level': 5,
+    'syntax_highlight' : 'none',
+    'math_output' : 'latex',
+    'field_name_limit': 50,
+}
+
+class GitHubHTMLTranslator(HTMLTranslator):
+    # removes the <div class="document"> tag wrapped around docs
+    # see also: http://bit.ly/1exfq2h (warning! sourceforge link.)
+    def depart_document(self, node):
+        HTMLTranslator.depart_document(self, node)
+        self.html_body.pop(0)
+        self.html_body.pop()
+
+    # technique for visiting sections, without generating additional divs
+    # see also: http://bit.ly/NHtyRx
+    def visit_section(self, node):
+        self.section_level += 1
+
+    def depart_section(self, node):
+        self.section_level -= 1
+
+    def visit_literal_block(self, node):
+        classes = node.attributes['classes']
+        if len(classes) >= 2 and classes[0] == 'code':
+            language = classes[1]
+            del classes[:]
+            self.body.append(self.starttag(node, 'pre', lang=language))
+        else:
+            self.body.append(self.starttag(node, 'pre'))
+
+    # always wrap two-backtick rst inline literals in <code>, not <tt>
+    # this also avoids the generation of superfluous <span> tags
+    def visit_literal(self, node):
+        self.body.append(self.starttag(node, 'code', suffix=''))
+
+    def depart_literal(self, node):
+        self.body.append('</code>')
+
+    def visit_table(self, node):
+        classes = ' '.join(['docutils', self.settings.table_style]).strip()
+        self.body.append(
+                self.starttag(node, 'table', CLASS=classes))
+
+    def depart_table(self, node):
+        self.body.append('</table>\n')
+
+    def depart_image(self, node):
+      uri = node['uri']
+      ext = os.path.splitext(uri)[1].lower()
+      # we need to swap RST's use of `object` with `img` tags
+      # see http://git.io/5me3dA
+      if ext == ".svg":
+        # preserve essential attributes
+        atts = {}
+        for attribute, value in  node.attributes.items():
+          # we have no time for empty values
+          if value:
+            if attribute == "uri":
+              atts['src'] = value
+            else:
+              atts[attribute] = value
+
+        # toss off `object` tag
+        self.body.pop()
+        # add on `img` with attributes
+        self.body.append(self.starttag(node, 'img', **atts))
+      self.body.append(self.context.pop())
+
+    # --------------------------------------------------------------------------
+
+    def visit_definition(self, node):
+        self.body.append('</dt>\n')
+        self.body.append(self.starttag(node, 'dd', ''))
+        self.set_first_last(node)
+
+    def depart_definition(self, node):
+        self.body.append('</dd>\n')
+
+    def visit_definition_list(self, node):
+        self.body.append(self.starttag(node, 'dl', CLASS='docutils'))
+
+    def depart_definition_list(self, node):
+        self.body.append('</dl>\n')
+
+    def visit_definition_list_item(self, node):
+        pass
+
+    def depart_definition_list_item(self, node):
+        pass
+
+    def visit_term(self, node):
+        self.body.append(self.starttag(node, 'dt', ''))
+
+    def depart_term(self, node):
+        """
+        Leave the end tag to `self.visit_definition()`, in case there's a
+        classifier.
+        """
+        pass
+
+def main():
+    """
+    Parses the given ReST file or the redirected string input and returns the
+    HTML body.
+
+    Usage: rest2html < README.rst
+           rest2html README.rst
+    """
+    try:
+        text = codecs.open(sys.argv[1], 'r', 'utf-8').read()
+    except IOError: # given filename could not be found
+        return ''
+    except IndexError: # no filename given
+        text = sys.stdin.read()
+
+    writer = Writer()
+    writer.translator_class = GitHubHTMLTranslator
+
+    parts = publish_parts(text, writer=writer, settings_overrides=SETTINGS)
+    if 'html_body' in parts:
+        html = parts['html_body']
+
+        # publish_parts() in python 2.x return dict values as Unicode type
+        # in py3k Unicode is unavailable and values are of str type
+        if isinstance(html, str):
+            return html
+        else:
+            return html.encode('utf-8')
+    return ''
+
+if __name__ == '__main__':
+    sys.stdout.write("%s%s" % (main(), "\n"))
+    sys.stdout.flush()
+
+
