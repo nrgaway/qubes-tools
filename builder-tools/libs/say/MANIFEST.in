@@ -1,0 +1,8 @@
+recursive-include .ipynb_checkpoints *
+include CHANGES.yml
+recursive-include docs *.rst *.py
+include README.rst
+recursive-include say *.py
+recursive-include test *.py
+include tox.ini
+include pytest.ini

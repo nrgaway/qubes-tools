@@ -1,0 +1,34 @@
+#!/bin/bash
+# vim: set ft=sh ts=4 sw=4 sts=4 et :
+
+#
+# This script need to run from within the 'qubes-src' directory!
+#
+
+SINCE="2015-10-01"
+UNTIL="2015-11-06"
+AUTHOR="nrgaway"
+
+COMPONENTS=qubes-src/*
+
+#for directory in ${COMPONENTS}; do
+#    if [ -d "${directory}" ]; then
+#	    git -C ${directory} log --pretty=oneline --abbrev-commit --author=nrgaway --since="${SINCE}" --until="${UNTIL}" | sed "s,^,https://github.com/nrgaway/qubes-$(basename ${directory})/commit/,"
+#    fi
+#done
+
+pprint () {
+    directory="$1"
+
+    if [ -d "${directory}" ]; then
+	    git -C "${directory}" log --pretty=oneline --abbrev-commit --author="${AUTHOR}" --since="${SINCE}" --until="${UNTIL}" | sed "s,^,https://github.com/"${AUTHOR}"/qubes-$(basename ${directory})/commit/,"
+    fi
+}
+
+# Create report for all COMPONENTS
+for directory in ${COMPONENTS}; do
+    pprint "${directory}"
+done
+    
+# Create report for 'qubes-builder'
+pprint .
