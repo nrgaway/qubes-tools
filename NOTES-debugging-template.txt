@@ -1,3 +1,0 @@
-
-# Attach a console to a running vm
-sudo xl console <VM-name>
