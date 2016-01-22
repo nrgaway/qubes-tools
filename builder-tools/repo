@@ -32,19 +32,20 @@ get-var::
 about::
 	@echo "extended-rules.conf"
 
-# To automatically add remotes and track a remote branch also add the `REPO_TRACK`
+# To automatically add remotes and track a remote branch also add the
+# `REMOTE_TRACKING`
 # variable to your Makefile configuration using the sample structure listed below:
-REPO_TRACK :=
-REPO_TRACK += builder-fedora:master:marmarek:master
-REPO_TRACK += builder-fedora:feature_branch:marmarek:master
-REPO_TRACK += builder-debian:master:marmarek:master
-REPO_TRACK += <local repo name>:<local branch>:<remote repo>:<remote branch>
+REMOTE_TRACKING :=
+REMOTE_TRACKING += builder-fedora:master:marmarek:master
+REMOTE_TRACKING += builder-fedora:feature_branch:marmarek:master
+REMOTE_TRACKING += builder-debian:master:marmarek:master
+REMOTE_TRACKING += <local repo name>:<local branch>:<remote repo>:<remote branch>
 
 # GIT_REMOTE_BASEURL
 # The default remote GIT_REMOTE_BASEURL is `https://github.com`.  Set this variable
 # to something else if needed within the Makefile configuration.
 
-# REPO_IGNORE
+# REMOTE_TRACKING_IGNORE
 # list of repo paths to ignore when --ignore flag is passed if the repos are not
 # listed after the --ignore flag
 '''
@@ -54,11 +55,12 @@ REPO_TRACK += <local repo name>:<local branch>:<remote repo>:<remote branch>
 import argparse
 import locale
 import collections
+import functools
 import os
 import re
 import sys
 
-BASE_DIR = os.getcwd()
+BASE_DIR = os.path.dirname(os.path.realpath(sys.argv[0]))
 LIBS_DIR = os.path.join(BASE_DIR, 'libs')
 if os.path.exists(LIBS_DIR) and os.path.isdir(LIBS_DIR):
     if LIBS_DIR not in sys.path:
@@ -71,16 +73,40 @@ from ansi import ANSIColor
 # This is almost always a good thing to do at the beginning of your programs.
 locale.setlocale(locale.LC_ALL, '')
 
+_PY3 = sys.version_info[0] == 3
+if _PY3:
+    basestring = unicode = str
 
-def update(data, key, style):
+
+def is_string(value):
+    """
+    Is the value a string?
+    """
+    return isinstance(value, basestring)
+
+
+def update_styles(styles, style):
     '''
     Utility function to update say styles to remove any invalid or
-    incompatible formats.
+    incompatible formats that would cause an invalid conflict when
+    updating styles.
+
+    :param styles: Current styles ('bold+red')
+    :param style: New style to upate with ('negative')
     '''
     invalid = ['bold', 'negative']
-    data[key] = '+'.join([s for s in data[key] if s not in invalid])
-    separator = '+' if data[key] else ''
-    data[key] += separator + style
+    styles = styles.replace('+', '|').replace(',', '|').lower()
+    
+    # Just return style since there are no styles set yet
+    if not styles:
+        return style
+
+    styles = [s for s in styles.split('|') if s not in invalid]
+
+    if style not in styles:
+        styles.append(style)
+   
+    return '|'.join(styles)
         
 
 class Makefile:
@@ -93,7 +119,7 @@ class Makefile:
         self.options = {}
         self.directory = os.path.abspath(directory)
         self.src_dir = os.path.join(directory, self.get_var('SRC_DIR').strip())
-        self.ignore = self.get_var('REPO_IGNORE').strip().split()
+        self.ignore = self.get_var('REMOTE_TRACKING_IGNORE').strip().split()
 
         git_baseurl = self.get_var('GIT_REMOTE_BASEURL').strip()
         self.git_baseurl = git_baseurl if git_baseurl else self.GIT_REMOTE_BASEURL
@@ -148,38 +174,46 @@ def show(text, color=True):
         text = re.sub(r'\033\[?.*?[\@-~]', '', text)
     print text
 
-def walk(function, **kwargs):
-    makefile_directory = kwargs['makefile_directory']
+def walk(function, directory, **kwargs):
+    def valid_git_repo_paths(paths):
+        if is_string(paths):
+            paths = [paths]
 
-    dirs = []
+        for path in paths:
+            path = os.path.abspath(path)
+
+            if not os.path.exists(path):
+                continue
+
+            if os.path.basename(path) in ignore:
+                continue
+
+            yield path
+    
     cache = []
-    makefile = Makefile(makefile_directory)
+    directory = os.path.abspath(directory)
+    makefile = Makefile(directory)
+    ignore = kwargs.get('ignore', []) or [] + makefile.ignore
 
-    # Make paths absolute
+    # Git repo absolute paths
     if kwargs['dirs']:
-        for path in kwargs['dirs']:
-            dirs.append(os.path.abspath(path))
+        git_repo_paths = [path for path in valid_git_repo_paths(kwargs['dirs'])]
     else:
-        for path in os.listdir(makefile.src_dir):
-            dirs.append(os.path.join(makefile.src_dir, path))
+        git_repo_paths = [
+                path for path in valid_git_repo_paths(
+                    [os.path.join(makefile.src_dir, dirname) for dirname in os.listdir(makefile.src_dir)]
+                    )
+                ]
 
-        if kwargs['include_basedir'] and makefile_directory not in dirs:
-            dirs.append(makefile.directory)
+    # Maybe add base directory as path as well
+    if kwargs.get('include_basedir', None) and directory not in git_repo_paths:
+        git_repo_paths.append(makefile.directory)
 
-    # Remove ignored repos from dirs
-    if 'ignore' in kwargs and kwargs['ignore'] is not None:
-        for index, path in enumerate(kwargs['ignore'] + makefile.ignore):
-            for path in [path, os.path.join(makefile.src_dir, path)]:
-                if os.path.exists(path) and os.path.isdir(path) and os.path.abspath(path) in dirs:
-                    while path in dirs:
-                        dirs.remove(path)
-                    break
-
-    # Convert Makefile $(REPO_TRACK) into a dictionary
+    # Convert Makefile $(REMOTE_TRACKING) into a dictionary
     repos = {}
     paths = []
     branches = []
-    for track_item in makefile.get_var('REPO_TRACK').split():
+    for track_item in makefile.get_var('REMOTE_TRACKING').split():
         repo = dict(zip(['path', 'branch', 'remote', 'remote_branch'], track_item.split(':')))
         repo['abspath'] = os.path.abspath(os.path.join(makefile.src_dir, repo['path']))
         paths.append(repo['abspath'])
@@ -190,7 +224,7 @@ def walk(function, **kwargs):
         #print 'Path: {0}, Branch: {1}'.format(path.strip(), branch.strip())
         repos[path]['default_branch'] = branch.strip() or 'master'
 
-    for path in sorted(dirs):
+    for path in sorted(git_repo_paths):
         if not os.path.isdir(path):
             continue
 
@@ -201,12 +235,15 @@ def walk(function, **kwargs):
 
         git = sh.git.bake(_cwd=path)
 
+        # XXX: TEST -- Never fetch automatically; let functions do it if needed
         # Fetch
-        fetch(path, makefile, **kwargs)
+        # fetch(path, makefile, **kwargs)
 
         # Do not re-call fetch is mode is fetch
-        if function != fetch:
-            function(path, makefile, repos=repos, **kwargs)
+        #if function != fetch:
+        #    function(path, makefile, repos=repos, **kwargs)
+        
+        function(path, makefile, repos=repos, **kwargs)
 
 
 def fetch(path, makefile, **kwargs):
@@ -217,11 +254,9 @@ def fetch(path, makefile, **kwargs):
 
 
 def remotes(path, makefile, **kwargs):
-    track_list = makefile.get_var('REPO_TRACK').split()
+    track_list = sorted(set(makefile.get_var('REMOTE_TRACKING').split()))
     if not track_list:
         return
-
-    ansi = ANSIColor()
 
     for track_item in track_list:
         track_path, branch, remote, remote_branch = track_item.split(':')
@@ -230,39 +265,67 @@ def remotes(path, makefile, **kwargs):
         if track_path != path:
             continue
 
-        print 'Checking remotes for: {0} [{1}]'.format(path, branch)
-
         if not os.path.exists(path) or not os.path.isdir(path):
             continue
 
+        #print track_item
+
         git = sh.git.bake(_cwd=path)
+        status = _git_status(path)
+        
+        repo = fmt('{os.path.basename(track_path)!r:style=bold+blue}')
+        remote_status = fmt('{remote:style=bold+magenta}')
+        local_branch_status = fmt('{branch:style=bold+magenta}')
+        remote_branch_status = fmt('{remote_branch:style=bold+magenta}')
+        
+        # XXX: - Not so sure if I shoudl be using status at this point
+        #        cause it only lists current branch status and not remotes
+        #        Maybe create function for remotes to check? 
+        if remote == status['remote'] and remote_branch == status['remote_branch']:
+            say('{repo}: {local_branch_status}...{remote_status}/{remote_branch_status}.  Skipping...')
+            return
 
-        # Add git remote...
-        origin = git.remote('-v').stdout
-        match = re.search(r'origin[\s]+.*[/](.+)\s+\(fetch\).*', origin)
+        # =====================================================================
+        # Add git remote
+        # =====================================================================
+        if remote != status['remote']:
+            origin = git.remote('-v').stdout
+            match = re.search(r'origin[\s]+.*[/](.+)\s+\(fetch\).*', origin)
 
-        # XXX: Allowing exception to be raised if no match so was can deal with implementing it later
-        remote_url = '{0}{1}/{2}'.format(makefile.git_baseurl, remote, match.group(1).strip())
+            # XXX: Allowing exception to be raised if no match so was can deal with implementing it later
+            remote_url = '{0}{1}/{2}'.format(makefile.git_baseurl, remote, match.group(1).strip())
 
-        if not re.search(r'(?m){0}'.format(remote_url), origin):
-            print '{ansi[bold]}{ansi[green]}Adding remote {0}: {1}{ansi[normal]}'.format(remote, remote_url, ansi=ansi)
-            try:
-                git.remote.add(remote, remote_url)
-            except sh.ErrorReturnCode, msg:
-                print '{ansi[red]}{0}{ansi[normal]}'.format(msg, ansi=ansi)
+            if not re.search(r'(?m){0}'.format(remote_url), origin):
+                remote_status = fmt('{status["remote"]:style=bold+green}')
+                try:
+                    git.remote.add(remote, remote_url)
+                except sh.ErrorReturnCode, msg:
+                    remote_status = fmt('{status["remote"]:style=bold+red}')
+                    say(msg, style='red')
 
-            # Fetch
-            print git.fetch('--all')
+        # =====================================================================
+        # Track remote branch
+        # =====================================================================
 
-        # Watch remote branch
+        # XXX:
+        #   - Should we check if branch is already added?
+        #   - If remote is already added, will tracking branch still be set up?
+
+        print git.fetch('--all')
         try:
-            if branch == git('rev-parse', '--abbrev-ref', 'HEAD').stdout.strip():
-                print git.branch('-u', '{0}/{1}'.format(remote, remote_branch), branch)
-                break
+            #if branch == git('rev-parse', '--abbrev-ref', 'HEAD').stdout.strip():
+            git.branch('-u', '{0}/{1}'.format(remote, remote_branch), branch)
+            remote_branch_status = fmt('{remote_branch:style=bold+green}')
+            #break
         except sh.ErrorReturnCode:
-            pass
+            remote_branch_status = fmt('{remote_branch:style=bold+red}')
+            say(msg, style='red')
+        
+        say('{repo}: {local_branch_status}...{remote_status}/{remote_branch_status}.')
 
 
+# XXX: Should we gt rid of status in favor of tracking, or impove output
+# display
 def status(path, makefile, **kwargs):
     ansi =  ANSIColor()
     git = sh.git.bake(_cwd=path)
@@ -352,32 +415,14 @@ def push(path, makefile, **kwargs):
     print '{ansi[red]}{0}{ansi[normal]}'.format(result, ansi=ansi)
 
 
-def tracking(path, makefile, repos, **kwargs):
+def _git_status(path):
+    '''Return a dictionary of git status for path.
+
+    Example output of `git status --porcelain --branch` (First line only)
+        ## staging
+    or
+        ## master...marmarek/master [behind 13]
     '''
-    '''
-    if not repos:
-        print 'REPO_TRACK not found in configuration files'
-        return
-
-    styles = collections.defaultdict(list)
-    warnings = []
-
-    # Convert Makefile $(REPO_TRACK) into a dictionary
-#    repos = {}
-#    for track_item in track_list:
-#        repo = dict(zip(['path', 'branch', 'remote', 'remote_branch'], track_item.split(':')))
-#        repo['abspath'] = os.path.abspath(os.path.join(makefile.src_dir, repo['path']))
-#        repos[repo['abspath']] = repo
-
-    git = sh.git.bake(_cwd=path)
-    default = dict(branch='', remote='', remote_branch='', info='')
-
-    git_status = git.status('--porcelain', '--branch').stdout
-
-    # Example output of `git status --porcelain --branch` (First line only)
-    #   ## staging
-    # or
-    #   ## master...marmarek/master [behind 13]
     re_status = re.compile(r'''(?x)
             ^[#]{2}\s                       # '## '
             (?P<branch> .*?)                # 'master'
@@ -391,95 +436,163 @@ def tracking(path, makefile, repos, **kwargs):
                 $
             |$)
     ''')
+    
     re_dirty = re.compile(r'''(?xms)
             ^.[M?]\s.*$
     ''')
-    status = re_status.search(git_status.split('\n')[0])
-    dirty = re_dirty.search('\n'.join(git_status.split('\n')[1:]))
     
+    default = dict(branch='', remote='', remote_branch='', info='')
+    git = sh.git.bake(_cwd=path)
+    git_status = git.status('--porcelain', '--branch').stdout
+    
+    status = re_status.search(git_status.split('\n')[0])
     if status:
         status = {k:v or ''  for k, v in status.groupdict().items()}
     else:
         status = default
+    
+    dirty = re_dirty.search('\n'.join(git_status.split('\n')[1:]))
+    status['dirty'] = dirty.group() if dirty else None
 
-    if path in repos:
-        repo = repos[path]
-#        print repo
-#        print status
-        path = os.path.basename(path)
-        branch = remote = remote_branch = info = ''
+    return status
+    
 
-        # =====================================================================
-        # lable + separator
-        # =====================================================================
-        label = fmt('    Tracking: ', style='bold+blue')
-        separator = '*'
+def tracking(path, makefile, repos, **kwargs):
+    '''
+    '''
+    if not repos:
+        print 'REMOTE_TRACKING not found in configuration files'
+        return
 
-        # =====================================================================
-        # separator
-        # =====================================================================
-        styles['separator'] = 'bold+red' if dirty else 'bold+black'
+    warnings = []
+    
+    status = _git_status(path)
+    repo = repos.get(path, None)
+    path = os.path.basename(path)
 
-        # =====================================================================
-        # branch (local branch)
-        # =====================================================================
-        styles['branch'] = 'bold+red' if dirty else 'white'
+    # =====================================================================
+    # section formatting
+    # =====================================================================
+    def style_label(label, mode=None):
+        mode = mode() if mode else None
+        if mode == 'no_track':
+            return fmt('{label:>13}', style='bold+red')
         
+        return fmt('{label:>13}', style='bold+blue')
+        
+    def style_basename(basename, mode=None):
+        mode = mode() if mode else None
+        if mode == 'no_track':
+            return fmt('{basename:<35}', style='bold+red')
+        
+        return fmt('{basename:<35}', style='bold+black')
+        
+    def style_branch(branch, mode=None):
+        style = 'bold+red' if status['dirty'] else 'white'
+    
         # Not on default branch
         if status['branch'] != repo['branch']:
-            update(styles, 'branch', 'negative')
-            warnings.append('branch')
-
-        # =====================================================================
-        # remote and remote_branch
-        # =====================================================================
-        #styles['remote'] = 'blue' if status['branch'] != status['remote_branch'] else 'white
-        #styles['remote'] = 'red' if status['remote'] == 'origin' else ansi['remote']
-        #styles['remote_branch'] = 'blue' if status['branch'] != status['remote_branch'] else 'white'
-        #styles['remote'] = 'red' if status['remote'] != repo['remote'] else None
+            style = update_styles(style, 'negative')
         
-        styles['remote'] = 'white'
-        if status['remote'] != repo['remote']:
-            styles['remote'] = 'red'
-            warnings.append('remote')
+        return fmt('{branch:>12}', style=style)
 
-        styles['remote_branch'] = 'white'
+    def style_indicator(indicator, mode=None):
+        style = 'bold+red' if status['dirty'] else 'bold+black'
+        return fmt('{indicator:>1}', style=style)
         
-        # =====================================================================
-        # info
-        # =====================================================================
-        styles['info'] = 'bold+green' if 'ahead' in status['info'] else 'bold+red'
-
-        # =====================================================================
-        # section formatting
-        # =====================================================================
-        say.style(separator=lambda x: fmt('{x}', style=styles['separator'] ))
-        say.style(branch=lambda x: fmt('{x}', style=styles['branch'] ))
-        say.style(remote=lambda x: fmt('{x}', style=styles['remote'] ))
-        say.style(remote_branch=lambda x: fmt('{x}', style=styles['remote_branch'] ))
-        say.style(info=lambda x: fmt('{x}', style=styles['info'] ))
-
-        if status['branch']:
-            branch = fmt('{status["branch"]:style=branch} {separator:style=branch}')
-        
-        if status['remote']:
-            remote = fmt('...{status["remote"]:style=remote}/{status["remote_branch"]:style=remote_branch}')
-       
-        if status['info']:
-            info = fmt('{status["info"]:style=info}')
-        
-        say("{label} {os.path.basename(path):<35} {branch:<12}{remote} {info:<12}")
+    def style_remote_warning(remote, mode=None):
+        return fmt('{remote}', style='yellow')
     
+    def style_remote(remote, mode=None):
+        mode = mode() if mode else None
+        if mode == 'warning':
+            return fmt('{remote}', style='green')
+
+        style = 'white'
+        
+        if 'origin' in status['remote']:
+            style = update_styles(style, 'bold')
+        
+        if status['remote'] != repo['remote']:
+            style = 'red'
+        
+        return fmt('...{remote}', style=style)
+        
+    def style_remote_branch(remote_branch, mode=None):
+        #styles = 'blue' if status['branch'] != status['remote_branch'] else 'white
+        style = 'white'
+
+        return fmt('/{remote_branch}', style=style)
+
+    def style_info(info, mode=None):
+        style = 'bold+green' if 'ahead' in status['info'] else 'bold+red'
+        return fmt('{info}', style=style)
+
+    mode = None
+    def get_mode():
+        return mode
+
+    styles = dict(
+        label=functools.partial(style_label, mode=get_mode),
+        basename=functools.partial(style_basename, mode=get_mode),
+        branch=functools.partial(style_branch, mode=get_mode),
+        indicator=functools.partial(style_indicator, mode=get_mode),
+        remote=functools.partial(style_remote, mode=get_mode),
+        remote_branch=functools.partial(style_remote_branch, mode=get_mode),
+        info=functools.partial(style_info, mode=get_mode),
+    )
+
+    # =====================================================================
+    # section output
+    # =====================================================================
+    if not repo:
+        with say.settings():
+            mode = 'no_track'
+            say.style(**styles)
+
+            label = 'Not Tracking'
+            basename = os.path.basename(path)
+            say('{label:style=label} {basename:style=basename}', style='bold+red')
+        return
+
+    label = 'Tracking:'
+    basename = os.path.basename(path)
+    branch = status['branch']
+    indicator = '*'
+    remote = status['remote']
+    remote_branch = status['remote_branch']
+    info = status["info"] if status['info'] else ''
+
+    # Not on default branch
+    if status['branch'] != repo['branch']:
+        warnings.append('Wrong branch. Local branch should be {0!r} not {1!r}'.format(status['branch'], repo['branch'])) 
+    
+    if status['remote'] != repo['remote']:
+        warnings.append('Wrong remote. Tracking remote should be {repo["remote"]!r:style=remote} not {status["remote"]!r:style=remote}')
+
+    #def apply_styles(**data):
+    #    results = {}
+    #    for key, value in data.items():
+    #        try:
+    #            results[key] = fmt('{data[key]}', style=key)
+    #        except KeyError:
+    #            pass
+    #    return results
+
+    with say.settings():
+        say.style(**styles)
+        
         if warnings:
-            label = fmt('              ')
-            separator = ' '
-            basename = fmt('---------------------------------->', style='white')
-            branch = fmt('{repo["branch"]:style=white} {separator:style=white}') if 'branch' in warnings else ''
-            remote = fmt('...{repo["remote"]:style=white}/{repo["remote_branch"]:style=white}') if 'remote' in warnings else'' 
-            info = ''
-            say("{label} {basename:<35} {branch:<12}{remote} {info:<12}")
-    else:
-        say('Not Tracking:  {os.path.basename(path)}', style='bold+red')
+            mode = 'warning'
+            print
+            for warning in warnings:
+                say(warning, indent=1, prefix='', style='red')
+        
+        mode = None
+        #template = '{label} {basename} {indicator} {branch}{remote}{remote_branch} {info}'
+        template = '{label:style=label} {basename:style=basename} {indicator:style=indicator} {branch:style=branch}{remote:style=remote}{remote_branch:style=remote_branch} {info:style=info}'
+        say(template)
+
 
 def _report(path, makefile, **kwargs):
     '''
@@ -606,8 +719,10 @@ def main(argv):
             help='List of repos to ignore')
 
     tracking = subparsers.add_parser('tracking',
-            help='Test REPO_TRACK to make sure paths exist')
+            help='Test REMOTE_TRACKING to make sure paths exist')
     tracking.add_argument('dirs', action='store', default=[], nargs='*')
+    tracking.add_argument('--ignore', nargs='*', action='store',
+            help='List of repos to ignore')
 
     report = subparsers.add_parser('report',
             help='Report commit history by certain author with options start date')
@@ -622,9 +737,9 @@ def main(argv):
             help='Date to start report')
 
     # --- Optionals ---------------------------------------------------------------
-    parser.add_argument('-C', '--makefile', dest='makefile_directory',
+    parser.add_argument('-C', '--directory', 
             action='store', default=os.getcwd(),
-            help='Makefile configuration file path')
+            help='Makefile directory path')
     parser.add_argument('--nofetch', dest='fetch',
             action='store_false', default=True,
             help='Do not fetch repos before the selected mode is run')
@@ -642,7 +757,9 @@ def main(argv):
     if args.mode in ['fetch', 'status', 'remotes', 'rebase', 'push', 'tracking', 'report']:
         print 'DISPATCHING:', args.mode
         function = globals()[args.mode]
-        walk(function, **vars(args))
+        
+        kwargs = vars(args)
+        walk(function, kwargs.pop('directory', os.getcwd()), **kwargs)
 
 
 if __name__ == '__main__':
